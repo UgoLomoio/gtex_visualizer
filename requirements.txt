@@ -5,4 +5,3 @@ jupyterlab
 ipywidgets
 pandas 
 numpy
-jupyter-dash
