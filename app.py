@@ -7,7 +7,6 @@
 *************************************************************************************************************
 """
 
-from sre_parse import State
 from dash import html, dcc, Dash 
 from dash.dependencies import Input, Output, State
 import plotly.graph_objects as go
