@@ -4,7 +4,7 @@ on:
     branches:
       - master
   schedule:
-    - cron: '0 11 * * *'  # run at during the 11th hour of each day
+    - cron: '* 10,11,12 * * *'  # run at during the 11th UTC hour of each day
 jobs:
   build-and-deploy:
     runs-on: ubuntu-18.04
