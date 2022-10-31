@@ -1,6 +1,6 @@
 plotly
 requests
-dash==1.9.1
+dash==2.6.2
 jupyterlab
 ipywidgets
 pandas 

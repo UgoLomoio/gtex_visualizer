@@ -1,6 +1,5 @@
-
 html:
-	# Now build the app
+	# Build the app
 	export DEBUG=False && python3 app.py &
 	sleep 60
 	wget -r http://127.0.0.1:8050/ 
