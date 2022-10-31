@@ -3,8 +3,7 @@ on:
   push:
     branches:
       - master
-  schedule:
-    - cron: '50 10,11,12 * * *'  # run at during the *th UTC hour of each day
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-18.04
