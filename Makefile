@@ -18,12 +18,12 @@ html:
 
 submodules:
 	git submodule init
-	git submodule update
 
 clean:
 	rm -rf 127.0.0.1:8050/
 	rm -rf joblib
 	rm -rf predictions.pkl
+	rm -rf gtexvisualizer.html
 
 gh-pages:
 	cd 127.0.0.1:8050 && touch .nojekyll && git init && git add * && git add .nojekyll && git commit -m "update" && git remote add origin https://github.com/UgoLomoio/gtex_visualizer.github.io.git && git push -f origin main
