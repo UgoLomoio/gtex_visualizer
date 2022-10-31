@@ -2,7 +2,7 @@ name: Build and Deploy
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build-and-deploy:
@@ -36,5 +36,5 @@ jobs:
         with:
           deploy_key: ${{ secrets.DEPLOY_KEY }}
           external_repository:  UgoLomoio/gtex_visualizer.github.io
-          publish_branch: master
+          publish_branch: main
           publish_dir: ./127.0.0.1:8050
