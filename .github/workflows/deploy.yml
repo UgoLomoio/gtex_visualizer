@@ -27,8 +27,8 @@ jobs:
       - name: Build static page
         shell: bash
         run: |
-            sudo make clean
-            sudo make html
+            make clean
+            make html
 
 
       - name: Deploy
