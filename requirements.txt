@@ -4,3 +4,4 @@ dash==2.6.2
 ipywidgets
 pandas 
 numpy
+gunicorn
