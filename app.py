@@ -1,8 +1,9 @@
 """
 *************************************************************************************************************
 *                                                                                                           *
-*   GTex data visualizer developed by Ugo Lomoio at Magna Graecia University of Catanzaro   *
+*   GTex data visualizer developed by Ugo Lomoio at Magna Graecia University of Catanzaro                   *
 *                                                                                                           *
+*                           App with Server Side callbacks                                                  *
 *                                                                                                           *
 *************************************************************************************************************
 """
