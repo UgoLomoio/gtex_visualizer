@@ -11,7 +11,7 @@ html:
 	mv 127.0.0.1:8050/_dash-layout 127.0.0.1:8050/_dash-layout.json	
 	mv 127.0.0.1:8050/_dash-dependencies 127.0.0.1:8050/_dash-dependencies.json
 	cp assets/* 127.0.0.1:8050/assets/
-	cp _static/async* 127.0.0.1:8050/_dash-component-suites/dash_core_components/
+	cp _static/async* 127.0.0.1:8050/_dash-component-suites/dcc/
 	ps | grep python | awk '{print $$1}' | xargs kill -9	
 
 submodules:
