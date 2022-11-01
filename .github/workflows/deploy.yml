@@ -24,7 +24,7 @@ jobs:
           python -m pip install -r requirements.txt
           export
 
-      - name: Build static page
+      - name: Build static page 
         shell: bash
         run: |
             make clean
