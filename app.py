@@ -53,6 +53,7 @@ prec_tissue = None
 prec_filter = None
 
 app = Dash(__name__)          #create the dash app fist 
+server = app.server
 
 app_dash_layout_args = [
             
