@@ -252,4 +252,4 @@ def update_plot(n_clicks, filters, gene, tissue):
         print("Returing figures")
         return fig_prec_violin, fig_prec_pie
 
-app.run_server(debug=True, threaded = True, dev_tools_hot_reload=False)
+app.run_server(debug=True, dev_tools_hot_reload=False), #threaded = True)
