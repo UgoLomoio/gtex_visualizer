@@ -274,7 +274,7 @@ def plot_gene_tissue_data(gene, gene_name, tissue):
     gender_colors = ["cyan", "pink"]
     genders = ["male", "female"]
     age_colors = ["red", "green", "blue", "cyan", "yellow", "orange"]
-    ages = ["20-29", "30-39", "40-49", "50-59", "60-69"]
+    ages = ["20-29", "30-39", "40-49", "50-59", "60-69", "70-79"]
     #scores = ["None", "Mild", "Moderate", "Severe"]
     score_colors = ["red", "green", "blue", "cyan", "yellow", "orange"]
     #deaths = ["Ventilator case", "Fast death - violent", "Fast death - natural causes", "Intermediate death", "Slow death"]
