@@ -1,0 +1,12 @@
+heroku commands 
+
+add changes to heroku git
+git add *
+git commit -m "Message"
+git push heroku main
+
+scale 
+heroku ps:scale web=1
+
+open 
+heroku open
