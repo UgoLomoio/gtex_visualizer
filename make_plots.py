@@ -55,6 +55,26 @@ colors = ['aliceblue', 'antiquewhite', 'aqua', 'aquamarine', 'azure',
                 'violet', 'wheat', 'white', 'whitesmoke', 'yellow',
                 'yellowgreen']
 
+all_tissues = ['Adipose_Subcutaneous', 'Adipose_Visceral_Omentum', 'Adrenal_Gland',
+ 'Artery_Aorta', 'Artery_Coronary', 'Artery_Tibial', 'Bladder',
+ 'Brain_Amygdala', 'Brain_Anterior_cingulate_cortex_BA24',
+ 'Brain_Caudate_basal_ganglia', 'Brain_Cerebellar_Hemisphere',
+ 'Brain_Cerebellum', 'Brain_Cortex', 'Brain_Frontal_Cortex_BA9',
+ 'Brain_Hippocampus', 'Brain_Hypothalamus',
+ 'Brain_Nucleus_accumbens_basal_ganglia', 'Brain_Putamen_basal_ganglia',
+ 'Brain_Spinal_cord_cervical_c-1', 'Brain_Substantia_nigra',
+ 'Breast_Mammary_Tissue', 'Cells_Cultured_fibroblasts',
+ 'Cells_EBV-transformed_lymphocytes', 'Cervix_Ectocervix',
+ 'Cervix_Endocervix', 'Colon_Sigmoid', 'Colon_Transverse',
+ 'Esophagus_Gastroesophageal_Junction', 'Esophagus_Mucosa',
+ 'Esophagus_Muscularis', 'Fallopian_Tube', 'Heart_Atrial_Appendage',
+ 'Heart_Left_Ventricle', 'Kidney_Cortex', 'Kidney_Medulla', 'Liver', 'Lung',
+ 'Minor_Salivary_Gland', 'Muscle_Skeletal', 'Nerve_Tibial', 'Ovary',
+ 'Pancreas', 'Pituitary', 'Prostate', 'Skin_Not_Sun_Exposed_Suprapubic',
+ 'Skin_Sun_Exposed_Lower_leg', 'Small_Intestine_Terminal_Ileum', 'Spleen',
+ 'Stomach', 'Testis', 'Thyroid', 'Uterus', 'Vagina', 'Whole_Blood']
+
+
 def request_api_subject_from_age(age):
      
     #age range, for example 60-69
@@ -131,7 +151,8 @@ def plot_by_gene_and_gender_and_tissue(gencode_id, gene_name, tissue):
          fig.add_trace(go.Violin(x0 = tissue, y=data_tissue_gender, points='outliers', name = gender, box_visible=True,  line_color='white', fillcolor = colors[i], meanline_visible=True, opacity=0.8))
     
     fig.update_xaxes(type='category')
-    fig.update_layout(violinmode='group', hovermode='x unified', template="plotly_dark",  yaxis_title="TPM", title= "Violin plot of Gene {} and Tissue {} divided by gender".format(gene_name, tissue))
+    fig.update_layout(violinmode='group', hovermode='x unified', template="plotly_dark",  yaxis_title="TPM", title= "Violin plot of Gene {} and Tissue {} divided by gender".format(gene_name, tissue), autosize=False,
+    width=1500, height=800)
     return fig
 
 def plot_by_gene_and_gender(gencode_id, gene_name):
@@ -150,7 +171,7 @@ def plot_by_gene_and_gender(gencode_id, gene_name):
                 fig.add_trace(go.Violin(x0 = tissue, y=data_tissue_gender, points='outliers', legendgroup=gender, scalegroup=gender, showlegend=False, box_visible=True,  line_color='white', fillcolor = colors[j], meanline_visible=True, opacity=0.8))
     
     fig.update_xaxes(type='category')
-    fig.update_layout(violinmode='group', hovermode='x unified', template="plotly_dark", yaxis_title="TPM", title= "Violin plot of Gene {} divided by Gender".format(gene_name), autosize=False, width=1000, height=1500, xaxis=dict(rangeslider=dict(
+    fig.update_layout(violinmode='group', hovermode='x unified', template="plotly_dark", yaxis_title="TPM", title= "Violin plot of Gene {} divided by Gender".format(gene_name), autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(
                      visible=True)))
     fig.update_yaxes(autorange = True,fixedrange = False)
     return fig  
@@ -175,7 +196,7 @@ def plot_by_gene_and_tissue_and_age(gencode_id, gene_name, tissue):
         #    fig.add_trace(go.Violin(x0 = tissue, y=data_tissue_age, points='outliers', legendgroup=age, scalegroup=age, showlegend=False, box_visible=True,  line_color='white', fillcolor = colors[j], meanline_visible=True, opacity=0.8))
     
     fig.update_xaxes(type='category')
-    fig.update_layout(violinmode='group', hovermode='x unified', template="plotly_dark",  yaxis_title="TPM",  title= "Violin plot of Gene {}, Tissue {} divided by age".format(gene_name, tissue), autosize=False, width=1000, height=1500, xaxis=dict(rangeslider=dict(
+    fig.update_layout(violinmode='group', hovermode='x unified', template="plotly_dark",  yaxis_title="TPM",  title= "Violin plot of Gene {}, Tissue {} divided by age".format(gene_name, tissue), autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(
                      visible=True)))
     fig.update_yaxes(autorange = True,fixedrange = False)
     return fig
@@ -191,7 +212,7 @@ def plot_by_gene(gencode_id, gene_name):
         fig.add_trace(go.Violin(x0 = tissue, y=tissue_data, points='outliers', name = tissue, box_visible=True,  line_color='white', fillcolor = colors[i], meanline_visible=True, opacity=0.8))
     
     fig.update_xaxes(type='category')
-    fig.update_layout(template="plotly_dark", hovermode='x unified', yaxis_title="TPM", title= "Violin plot of Gene {}".format(gene_name), autosize=False, width=1000, height=1500, xaxis=dict(rangeslider=dict(
+    fig.update_layout(template="plotly_dark", hovermode='x unified', yaxis_title="TPM", title= "Violin plot of Gene {}".format(gene_name), autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(
                      visible=True)))
     return fig
 
@@ -210,14 +231,15 @@ def plot_by_gene_and_gender_and_tissue_and_age(gencode_id, gene_name, tissue):
     df = request_api_gene_expression_with_gender(gencode_id)
     fig = go.FigureWidget()
     genders = ["male", "female"]
-    ages = ["20-29", "30-39", "40-49", "50-59", "60-69"]
+    ages = ["20-29", "30-39", "40-49", "50-59", "60-69", "70-79"]
     data = {gender: {age: [float(elem) for elem in list(df['data'][df['tissueSiteDetailId'] == tissue][df['subsetGroup'] == gender][df['ageBracket'] == age].values[0])] for age in ages} for gender in genders}
     colors = ["cyan", "pink"]
     for i, (gender, data_tissue_gender) in enumerate(data.items()):
          fig.add_trace(go.Violin(x0 = tissue, y=data_tissue_gender, points='outliers', name = gender, box_visible=True,  line_color='white', fillcolor = colors[i], meanline_visible=True, opacity=0.8))
     
     fig.update_xaxes(type='category')
-    fig.update_layout(violinmode='group', hovermode='x unified', template="plotly_dark",  yaxis_title="TPM", title= "Violin plot of Gene {} and Tissue {} divided by gender".format(gene_name, tissue))
+    fig.update_layout(violinmode='group', hovermode='x unified', template="plotly_dark",  yaxis_title="TPM", title= "Violin plot of Gene {} and Tissue {} divided by gender".format(gene_name, tissue), autosize=False,
+    width=1500, height=800)
     return fig
 
 def plot_by_gene_tissue_age_and_gender(gencode_id, gene_name, tissue):
@@ -225,27 +247,27 @@ def plot_by_gene_tissue_age_and_gender(gencode_id, gene_name, tissue):
     df_gender = request_api_gene_expression_with_gender(gencode_id)
     df_age = request_api_gene_expression_with_age(gencode_id)
     genders = ["male", "female"]
-    ages = ["20-29", "30-39", "40-49", "50-59", "60-69"]
+    ages = ["20-29", "30-39", "40-49", "50-59", "60-69", "70-79"]
     data_gender = {gender: [float(elem) for elem in list(df_gender['data'][df_gender['tissueSiteDetailId'] == tissue][df_gender['subsetGroup'] == gender].values[0])] for gender in genders}
     data_age = {age: [float(elem) for elem in list(df_age['data'][df_age['tissueSiteDetailId'] == tissue][df_age['subsetGroup'] == age].values[0])] for age in ages}
     data_age_gender = {age: {gender: [float(elem1) for elem1 in data_gender[gender] for elem2 in data_age[age] if elem1 == elem2] for gender in genders} for age in ages}
     
     fig = go.FigureWidget()
     idx = 0
-    colors = ["blue", "pink", "cyan", "violet", "green", "red", "orange", "purple", "yellow", "brown"]
+    colors = ["blue", "pink", "cyan", "violet", "green", "red", "orange", "purple", "yellow", "brown", "blue", "magenta"]
     for i, (age, data_age) in enumerate(data_age_gender.items()):
         for j, (gender, data_age_gender) in enumerate(data_age.items()):
             fig.add_trace(go.Violin(x0 = tissue, y=data_age_gender, points='outliers', name=age+" "+gender, box_visible=True,  line_color='white', fillcolor = colors[idx], meanline_visible=True, opacity=0.8))
             idx += 1
     fig.update_xaxes(type='category')
-    fig.update_layout(violinmode='group', hovermode='x unified', yaxis_title = "TPM", template="plotly_dark", title= "Violin plot of Gene {}, Tissue {} divided by Gender and Age".format(gene_name, tissue), autosize=False, width=1000, height=1500, xaxis=dict(rangeslider=dict(
+    fig.update_layout(violinmode='group', hovermode='x unified', yaxis_title = "TPM", template="plotly_dark", title= "Violin plot of Gene {}, Tissue {} divided by Gender and Age".format(gene_name, tissue), autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(
                      visible=True)))
     # fig.update_yaxes(autorange = True,fixedrange = False)
     return fig  
 
 
 #api for pie charts
-def request_api_gene_expression_with_tissue_and_death(gene, tissue):
+def request_api_gene_expression_with_tissue_and_death(tissue):
   
     deaths = ["Ventilator%20case", "Fast%20death%20-%20violent", "Fast%20death%20-%20natural%20causes", "Intermediate%20death", "Slow%20death"]
     results = {}
@@ -254,7 +276,7 @@ def request_api_gene_expression_with_tissue_and_death(gene, tissue):
         results[death.replace("%20", " ")] = response["recordsFiltered"]
     return results
 
-def request_api_gene_expression_with_tissue_and_autolysisScore(gene, tissue):
+def request_api_gene_expression_with_tissue_and_autolysisScore(tissue):
     
     autolysisScore = ["None", "Mild", "Moderate", "Severe"]
     
@@ -264,13 +286,39 @@ def request_api_gene_expression_with_tissue_and_autolysisScore(gene, tissue):
         results[score] = response["recordsFiltered"]
     return results
 
+
+def request_api_gene_expression_all_tissues_and_death():
+  
+    deaths = ["Ventilator%20case", "Fast%20death%20-%20violent", "Fast%20death%20-%20natural%20causes", "Intermediate%20death", "Slow%20death"]
+    results = {}
+    for tissue in all_tissues:
+        temp = {}
+        for death in deaths:
+            response = requests.get("http://gtexportal.org/rest/v1/dataset/sample?datasetId=gtex_v8&tissueSiteDetailId={}&hardyScale={}&format=json&pageSize=2000&sortBy=sampleId&sortDirection=asc".format(tissue, death)).json()
+            temp[death.replace("%20", " ")] = response["recordsFiltered"]
+        results[tissue] = temp
+        
+    return results
+
+def request_api_gene_expression_all_tissues_and_autolysisScore():
+    
+    autolysisScore = ["None", "Mild", "Moderate", "Severe"]
+    
+    results = {}
+    for tissue in all_tissues:
+        temp = {}
+        for score in autolysisScore:
+            response = requests.get("http://gtexportal.org/rest/v1/dataset/sample?datasetId=gtex_v8&tissueSiteDetailId={}&autolysisScore={}&format=json&pageSize=2000&sortBy=sampleId&sortDirection=asc".format(tissue, score)).json()
+            temp[score] = response["recordsFiltered"]
+        results[tissue] = temp
+    return results
 #pie chart
 
 def plot_gene_tissue_data(gene, gene_name, tissue):
     
     df_genders = request_api_gene_expression_with_gender(gene)
     df_ages = request_api_gene_expression_with_age(gene)
-    
+
     gender_colors = ["cyan", "pink"]
     genders = ["male", "female"]
     age_colors = ["red", "green", "blue", "cyan", "yellow", "orange"]
@@ -280,10 +328,10 @@ def plot_gene_tissue_data(gene, gene_name, tissue):
     #deaths = ["Ventilator case", "Fast death - violent", "Fast death - natural causes", "Intermediate death", "Slow death"]
     deaths_colors = ["red", "green", "blue", "cyan", "yellow", "orange"]
     
-    data_genders = {gender: [float(elem) for elem in list(df_genders['data'][df_genders['tissueSiteDetailId'] == tissue][df_genders['subsetGroup'] == gender].values[0])] for gender in genders}
-    data_ages = {age: [float(elem) for elem in list(df_ages['data'][df_ages['tissueSiteDetailId'] == tissue][df_ages['subsetGroup'] == age].values[0])] for age in ages}
-    data_score = request_api_gene_expression_with_tissue_and_autolysisScore(gene, tissue)
-    data_deaths = request_api_gene_expression_with_tissue_and_death(gene, tissue)
+    data_genders = {gender: [float(elem) for elem in list(df_genders['data'][df_genders['tissueSiteDetailId'] == tissue][df_genders['subsetGroup'] == gender].values[0])] for gender in genders} #.values[0]
+    data_ages = {age: [float(elem) for elem in list(df_ages['data'][df_ages['tissueSiteDetailId'] == tissue][df_ages['subsetGroup'] == age].values[0])] for age in ages} #.values[0]
+    data_score = request_api_gene_expression_with_tissue_and_autolysisScore(tissue)
+    data_deaths = request_api_gene_expression_with_tissue_and_death(tissue)
     
     fig = make_subplots(rows=2, cols=2, specs=[[{'type':'domain'}, {'type':'domain'}], [{'type':'domain'}, {'type':'domain'}]], subplot_titles=['Donors gender', 'Donors age', 'Donors autolysis score', 'Donors death'])
     fig.add_trace(go.Pie(labels=list(data_genders.keys()), values=[len(gender_list) for gender_list in data_genders.values()], marker_colors=gender_colors, name="Gender"),
@@ -298,3 +346,42 @@ def plot_gene_tissue_data(gene, gene_name, tissue):
     fig.update_layout(template="plotly_dark", hovermode='x unified', title= "Pie charts for Gene {} and Tissue {}".format(gene_name, tissue), xaxis =  {                                     
                       'showgrid': False}, yaxis = {'showgrid': True}, showlegend=False)    
     return fig
+
+def plot_gene_data(gene, gene_name):
+    
+    df_genders = request_api_gene_expression_with_gender(gene)
+    df_ages = request_api_gene_expression_with_age(gene)
+
+    gender_colors = ["cyan", "pink"]
+    genders = ["male", "female"]
+    age_colors = ["red", "green", "blue", "cyan", "yellow", "orange"]
+    ages = ["20-29", "30-39", "40-49", "50-59", "60-69", "70-79"]
+    #scores = ["None", "Mild", "Moderate", "Severe"]
+    score_colors = ["red", "green", "blue", "cyan", "yellow", "orange"]
+    #deaths = ["Ventilator case", "Fast death - violent", "Fast death - natural causes", "Intermediate death", "Slow death"]
+    deaths_colors = ["red", "green", "blue", "cyan", "yellow", "orange"]
+    
+    data_genders = {gender: [float(elem) for elem in list(df_genders['data'][df_genders['subsetGroup'] == gender].values[0])] for gender in genders} #.values[0]
+    data_ages = {age: [float(elem) for elem in list(df_ages['data'][df_ages['subsetGroup'] == age].values[0])] for age in ages} #.values[0]
+    data_score = request_api_gene_expression_all_tissues_and_autolysisScore()
+    data_deaths = request_api_gene_expression_all_tissues_and_death()
+    data_tissues = {tissue: len(list(data_tissue)) for tissue, data_tissue in data_score.items()}
+
+
+    fig = make_subplots(rows=3, cols=2, specs=[[{'type':'domain'}, {'type':'domain'}], [{'type':'domain'}, {'type':'domain'}], [{'type':'domain'}, {'type':'domain'}]], subplot_titles=['Donors gender', 'Donors age', 'Donors autolysis score', 'Donors death'])
+    fig.add_trace(go.Pie(labels=list(data_genders.keys()), values=[len(gender_list) for gender_list in data_genders.values()], marker_colors=gender_colors, name="Gender"),
+                  1, 1)
+    fig.add_trace(go.Pie(labels=list(data_ages.keys()), values=[len(age_list) for age_list in data_ages.values()], marker_colors=age_colors, name="Age"),
+                  1, 2)
+    fig.add_trace(go.Pie(labels=list(data_score.keys()), values= list(data_score.values()), marker_colors=score_colors, name="Autolysis score"),
+                  2, 1)
+    fig.add_trace(go.Pie(labels=list(data_deaths.keys()), values= list(data_deaths.values()), marker_colors=deaths_colors, name="Deaths"),
+                  2, 2)
+    fig.add_trace(go.Pie(labels=list(data_tissues.keys()), values= list(data_tissues.values()), marker_colors=colors, name="Tissues"),
+                  3, 1)
+    fig.update_traces(hoverinfo='label+percent', textinfo = 'label')
+    fig.update_layout(template="plotly_dark", hovermode='x unified', title= "Pie charts for Gene {} and all tissues".format(gene_name), xaxis =  {                                     
+                      'showgrid': False}, yaxis = {'showgrid': True}, showlegend=False)    
+    return fig
+
+#change width on violin plots

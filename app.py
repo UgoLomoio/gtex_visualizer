@@ -43,6 +43,8 @@ all_filters = ["No filters", "Divide by Gender", "Divide by Age", "Divide by Gen
 all_ages = ["20-29", "30-39", "40-49", "50-59", "60-69", "70-79"]
 all_genders = ["male", "female"]
 max_n_clicks = 0
+bg = "white" #'rgb(17, 17, 17)'
+txt_color = "black"
 
 def empty_figure(title = "Fill Dropdown menus and press the Update Plot Button", color = "white"):
 
@@ -70,21 +72,24 @@ prec_filter = None
 prec_table = pd.DataFrame(columns = ["", "f_value", "p_value"])
 prec_table_title = "Anova and Kruskal analysis results only when Update Plots button is clicked" 
 prec_xrange = None
-
+max_download_n_clicks = 0
+max_about_n_clicks = 0
+curr_violin = fig_prec_violin 
 
 app = Dash(__name__)          #create the dash app fist 
 server = app.server
+app.title = "GTex Visual"
 
 app_dash_layout_args = [
             
-        html.H1("GTex gene data visualization",  
-                    style={'backgroundColor':'rgb(17, 17, 17)', 'color': 'orange'}
+        html.H1("GTex gene data visualization: tissue/gender/age",  
+                    style={'backgroundColor': bg, 'color': 'orange'}
         ),
 
         html.Div(
                 
                     children = [
-                        html.Label("Select a gene: ", style={'backgroundColor':'rgb(17, 17, 17)', 'color': 'white'}),
+                        html.Label("Select a gene: ", style={'backgroundColor': bg, 'color': txt_color}),
                         dcc.Dropdown(list(all_genes_dict.keys()), list(all_genes_dict.keys())[0], id='genes_dd', style={'color': 'black', 'border': '3px solid #ff7300'})
                     ],
                     style={'width': '100%', 'display': 'inline-block'}
@@ -93,7 +98,7 @@ app_dash_layout_args = [
         html.Div(
                 
                     children = [
-                        html.Label("Select a tissue:", style={'backgroundColor':'rgb(17, 17, 17)', 'color': 'white'}),
+                        html.Label("Select a tissue:", style={'backgroundColor': bg, 'color': txt_color}),
                         dcc.Dropdown(all_tissues, all_tissues[0], id='tissues_dd', style={'color': 'black', 'border': '3px solid #ff7300'})
                     ],
                     style={'width': '100%', 'display': 'inline-block'}
@@ -102,80 +107,127 @@ app_dash_layout_args = [
         html.Div(
                 
                     children = [
-                        html.Label("Select a filter:", style={'backgroundColor':'rgb(17, 17, 17)', 'color': 'white'}),
+                        html.Label("Select a filter:", style={'backgroundColor': bg, 'color': txt_color}),
                         dcc.Dropdown(all_filters, all_filters[0], id='filters_dd', style={'color': 'black', 'border': '3px solid #ff7300'})
                     ],
                     style={'width': '100%', 'display': 'inline-block'}
         ),
 
-        dcc.Loading(id = "loading-violin", style={"position": "absolute", "left": "0px", "top": "350px", 'backgroundColor':'rgb(17, 17, 17)', 
-                                                  'color': 'white', 'width': "800px", 'height': '1000px'}, type="default",  
+        html.Div(
+             children = [   
+                dcc.Loading(id = "loading-violin", style={"position": "absolute", "left": "0px", "top": "350px", 'backgroundColor': bg, 
+                                                          'color': txt_color, 'width': "800px", 'height': '1000px'}, type="default",  
                     
-                    children=
-                    [
-                            html.Div(
+                            children=
+                            [
+                                   html.Div(
+                                        dcc.Graph( 
+                                                id="fig-violin",
+                                                figure=empty_figure(),
+                                                animate=False,
+                                                style={"position": "absolute", "left": "0px", "top": "400px", 
+                                                       'backgroundColor': bg, 'color': txt_color, 'width': "1500px", 'height': '800px'},
+                                                config = {'responsive': True, 'displayModeBar': True}
+                                        )
+                                   ),
+                                   html.Div(
+                                            dcc.RangeSlider(id='rangeslider-1', min=0,max=len(all_tissues), step=1, value=[0, len(all_tissues)], tooltip={"placement": "bottom", "always_visible": True}),
+                                            id = "slider-conteiner-1",
+                                            style={"position": "absolute", "left": "0px", "top": "350px", 'backgroundColor': bg, 'color': txt_color, 'width': "1500px", 'height': '50px'}
+                                   )
+                            ]
+                ),
+                dcc.Loading(
+                            id = "loading-pie",   
+                            children=[html.Div(
                                 dcc.Graph( 
-                                        id="fig-violin",
-                                        figure=empty_figure(),
-                                        animate=False,
-                                        style={"position": "absolute", "left": "0px", "top": "400px", 
-                                               'backgroundColor':'rgb(17, 17, 17)', 'color': 'white', 'width': "800px", 'height': '1000px'},
-                                        config = {'responsive': True, 'displayModeBar': True}
+                                            id="fig-pie",
+                                            figure=empty_figure(),
+                                            animate=False,
+                                            style={"position": "absolute", "left": "0px", "top": "1250px", 'backgroundColor': bg, 'color': txt_color, 'width': "800px", 'height': '800px'}, #
+                                            config = {'responsive': True, 'displayModeBar': True}
                                 )
-                           ),
-                           html.Div(
-                                    dcc.RangeSlider(id='rangeslider-1', min=0,max=len(all_tissues), step=1, value=[0, len(all_tissues)], tooltip={"placement": "bottom", "always_visible": True}),
-                                    id = "slider-conteiner-1",
-                                    style={"position": "absolute", "left": "0px", "top": "300px", 
-                                               'backgroundColor':'rgb(17, 17, 17)', 'color': 'white', 'width': "800px", 'height': '50px'}
-                           )
-                    ]
-        ),
-        dcc.Loading(
-                    id = "loading-pie",   
-                    children=[html.Div(
-                        dcc.Graph( 
-                                    id="fig-pie",
-                                    figure=empty_figure(),
-                                    animate=False,
-                                    style={"position": "absolute", "left": "1000px", "top": "400px", 
-                                    'backgroundColor':'rgb(17, 17, 17)', 'color': 'white', 'width': "800px", 'height': '1000px'},
-                                    config = {'responsive': True, 'displayModeBar': True}
-                        )
 
-                    )],
-                    style={"position": "absolute", "left": "1000px", "top": "350px", 
-                                    'backgroundColor':'rgb(17, 17, 17)', 'color': 'white', 'width': "800px", 'height': '1000px'},
-                    type="default"
+                            )],
+                            style={"position": "absolute", 'backgroundColor': bg, "left": "0px", "top": "1250px",  'color': txt_color, 'width': "800px", 'height': '1000px'}, # "left": "1000px", "top": "350px", 
+                            type="default"
+                )
+             ]
         ),
-    
         html.Button(
                     "Update Plots",
                     id = "plot-button",  
                     n_clicks=0,
-                    style={"position": "absolute", "left": "850px", "top": "280px", 'cursor': 'pointer', 'border': '0px', 
+                    style={"position": "absolute", "left": "700px", "top": "50px", 'cursor': 'pointer', 'border': '0px', 
                            'border-radius': '3px', 'background-color': 'rgb(31, 24, 252)', 'color': 'white', 'font-size': '12px',
-                           'font-family': 'Open Sans', 'width': "100px", 'height': '40px', 'border': '3px solid #ff7300'}
+                           'font-family': 'Open Sans', 'width': "200px", 'height': '40px', 'border': '3px solid #ff7300'}
         ),
-        
+        html.Div(
+                [       
+                    html.Button(
+                                "Download Plots",#and Data
+                                id = "download-button",  
+                                n_clicks=0,
+                                style={"position": "absolute", "left": "1000px", "top": "50px", 'cursor': 'pointer', 'border': '0px', 
+                                       'border-radius': '3px', 'background-color': 'rgb(31, 24, 252)', 'color': 'white', 'font-size': '12px',
+                                       'font-family': 'Open Sans', 'width': "200px", 'height': '40px', 'border': '3px solid #ff7300'}
+                    ),
+                    dcc.Download(id="download-plots"),
+                    #dcc.Download(id="download-data")
+                ]
+        ),
+
         html.Div(
             [
                 html.Label(prec_table_title, id="table_title"),
-                dash_table.DataTable(data = [{"": "Anova", "f_value": "", "p_value": "None"}, {"": "Kruskal", "f_value": "None", "p_value": "None"}],
+                dash_table.DataTable(data = [{"": "Anova", "f_value": "", "p_value": "None"}, {"": "Kruskal", "f_value": "None", "p_value": "None"}],  export_format="csv",
                                      columns = [{"name": name, "id": name} for name in prec_table.columns], id='anova_table', style_header={'backgroundColor': 'rgb(30, 30, 30)','color': 'white'},
                                      style_data={'backgroundColor': 'rgb(50, 50, 50)', 'color': 'white'})
             ],  
-            style={"position": "absolute", "right": "200px", "top": "1400px", 
-                                            'backgroundColor':'rgb(17, 17, 17)', 'color': 'white', 'width': '400px', 'height': '200px'}
+            style={"position": "absolute", "left": "800px", "top": "1250px", 
+                                            'backgroundColor': bg, 'color': txt_color, 'width': '400px', 'height': '400px'}
         ),
 
-]
+        html.Div([
+            html.Span('Contributors', className='contributors'),
+            html.Ul([
+                html.Li(['Ugo Lomoio, Magna Graecia University of Catanzaro']),
+                html.Li(['Pietro Hiram Guzzi, Magna Graecia University of Catanzaro']),
+                html.Li(['Pierangelo Veltri, Magna Graecia University of Catanzaro']),
+                html.Li(html.A("About us", href="https://dsmc.unicz.it/homepage"))
+            ]),
+            ],
+            className="footer",
+            style={"position": "absolute", "left": "0px", "top": "2000px", 'width': '100%'}
+        )
+    ]    
+
 app.layout = html.Div(
         app_dash_layout_args,
-        style = {'border': '0px', 'backgroundColor':'rgb(17, 17, 17)', 'background-size': '100%', 'position': 'fixed',
-                'width': '100%', 'height': '100%', 'overflowX': 'scroll'}
+        style = {'border': '0px', 'backgroundColor': 'white', 'background-size': '100%', 'position': 'fixed',
+                'width': '100%', 'height': '100%', 'margin': '0px', 'overflow': 'scroll'}
 )
-    
+  
+@app.callback(
+    Output("download-plots", "data"),
+    Input('download-button', 'n_clicks'), 
+    State('filters_dd', 'value'),
+    State('genes_dd', 'value'),
+    State('tissues_dd', 'value'),
+    prevent_initial_call=True
+)
+def download(download_n_clicks, filters, gene_name, tissue):
+
+    global max_download_n_clicks
+    global curr_violin
+
+    if download_n_clicks > max_download_n_clicks:
+        max_download_n_clicks = download_n_clicks
+        curr_violin.write_html("./assets/plots/{}_{}_{}_violin.html".format(gene_name, tissue, filters))
+        send_violin = dcc.send_file("./assets/plots/{}_{}_{}_violin.html".format(gene_name, tissue, filters))
+        #no download pie plots for now
+        return send_violin
+
 @app.callback(
 
     Output("fig-violin", "figure"),
@@ -202,11 +254,36 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
     global prec_tissue 
     global prec_filter 
     global prec_xrange
+    global curr_violin
+
+    if gene_name not in list(all_genes_dict.keys()):
+        error = "Gene {} not in supported genes".format(gene_name)
+        error_fig = empty_figure(error, "red")
+        curr_violin = error_fig
+        fig_prec_violin = error_fig
+        fig_prec_pie = error_fig
+        return error_fig, error_fig, error, prec_table, False #change prec table with table with Nones
+    
+    if tissue not in all_tissues:
+        error = "Tissue {} not in supported tissues".format(tissue)
+        error_fig = empty_figure(error, "red")
+        curr_violin = error_fig
+        fig_prec_violin = error_fig
+        fig_prec_pie = error_fig
+        return error_fig, error_fig, error, prec_table, False
+
+    if filters not in all_filters:
+        error = "Filter {} not in supported filters".format(filters)
+        error_fig = empty_figure(error, "red")
+        curr_violin = error_fig
+        fig_prec_violin = error_fig
+        fig_prec_pie = error_fig
+        return error_fig, error_fig, error, prec_table, False
 
     if prec_xrange != x_range:
         prec_xrange = x_range
         if x_range[0] == x_range[1]:
-
+             curr_violin = fig_prec_violin
              return fig_prec_violin, fig_prec_pie, prec_table_title, prec_table, False
 
         print("Setting x_range ", x_range) 
@@ -218,8 +295,9 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
                 print("Setting y_range ", y_range)
                 x_range_real = [x_range[0]-0.5, x_range[1]+0.5]
                 fig_prec_violin.update_layout(xaxis = {'autorange': False, 'range': x_range_real, 'uirevision': True, 'rangeslider': {'autorange': True, 'range': x_range}}, yaxis = {'autorange': False, 'range': y_range})
+                curr_violin = fig_prec_violin
                 return fig_prec_violin, fig_prec_pie, prec_table_title, prec_table, False
-        
+            
     print("Clicked {}, {}, {}".format(gene_name, tissue, filters))
     if gene_name is None:
         gene_name = all_genes_dict.keys()[0]
@@ -241,9 +319,13 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
             if filters == "No filters":
 
                 fig_violin = plot_by_gene(gencode_id, gene_name)
-                xmax=len(all_tissues)
                 hidden1 = False
+                
                 ys = [fig_violin.data[i]["y"] for i in range(len(fig_violin.data))]
+                y_range = get_current_y_range(x_range, ys)
+                x_range_real = [prec_xrange[0]-0.5, prec_xrange[1]+0.5]
+                fig_prec_violin.update_layout(xaxis = {'autorange': False, 'range': x_range_real, 'uirevision': True, 'rangeslider': {'autorange': True, 'range': prec_xrange}}, yaxis = {'autorange': False, 'range': y_range})
+
                 fvalue_anova, pvalue_anova = stats.f_oneway(ys[0], ys[1], ys[2], ys[3], ys[4], ys[5], ys[6], ys[7], ys[8], ys[9], ys[10],
                                                 ys[11], ys[12], ys[13], ys[14], ys[15], ys[16], ys[17], ys[18], ys[19], ys[20],
                                                 ys[21], ys[22], ys[23], ys[24], ys[25], ys[26], ys[27], ys[28], ys[29], ys[30],
@@ -262,9 +344,14 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
             elif filters == "Divide by Gender":
                         
                 fig_violin = plot_by_gene_and_gender(gencode_id, gene_name)
-                xmax = len(all_tissues)*len(all_genders) 
                 hidden1 = False
+                
                 ys = [fig_violin.data[i]["y"] for i in range(len(fig_violin.data))]
+                y_range = get_current_y_range(x_range, ys)
+                x_range_real = [prec_xrange[0]-0.5, prec_xrange[1]+0.5]
+                fig_prec_violin.update_layout(xaxis = {'autorange': False, 'range': x_range_real, 'uirevision': True, 'rangeslider': {'autorange': True, 'range': prec_xrange}}, yaxis = {'autorange': False, 'range': y_range})
+
+
                 fvalue_anova, pvalue_anova = stats.f_oneway(ys[0], ys[1], ys[2], ys[3], ys[4], ys[5], ys[6], ys[7], ys[8], ys[9], ys[10],
                                                 ys[11], ys[12], ys[13], ys[14], ys[15], ys[16], ys[17], ys[18], ys[19], ys[20],
                                                 ys[21], ys[22], ys[23], ys[24], ys[25], ys[26], ys[27], ys[28], ys[29], ys[30],
@@ -296,24 +383,24 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
                 fig_violin = empty_figure(error, 'red')
                 hidden1 = True
                 #rangeslider = dcc.RangeSlider(id='rangeslider', min=0,max=len(all_tissues),value=[0, len(all_tissues)], tooltip={"placement": "bottom", "always_visible": True}) 
-                xmax = len(all_tissues)
                 table_title += "Can't compute" 
                 prec_table_title = table_title
                 df = pd.DataFrame([["Anova", "None", "None"], ["Kruskal", "None", "None"]], columns = ["", "f_value", "p_value"])
                 dict_data = df.to_dict('rows')
 
             fig_violin.update_layout(xaxis = {'rangeslider': {'visible':False}})
+            curr_violin = fig_violin
             fig_prec_violin = fig_violin
             prec_table = dict_data 
             #prec_range_slider = rangeslider
-            prec_xmax = xmax
 
             print("Creating pie plots")
-            if gene_name != prec_gene or tissue != prec_tissue:
-                fig_pie = empty_figure(title = "Pie figures not yet implemented with Tissue = 'All'")             #to do fig pie with all tissues
+            if tissue != prec_tissue:
+                #fig_pie = plot_gene_data(gencode_id, gene_name)
+                fig_pie = empty_figure("Pie plots not implemented for tissue == All", "red")
             else:
                 fig_pie = fig_prec_pie
-                
+            
             if gene_name != prec_gene:
                 print("Changed gene {} -> {}".format(prec_gene, gene_name))
                 prec_gene = gene_name 
@@ -327,7 +414,7 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
             #print("Returning figures: ", fig_violin, fig_pie)
             fig_prec_pie = fig_pie
             
-            return fig_violin, fig_pie, table_title, dict_data, hidden1 #rangeslider
+            return fig_violin, fig_pie, table_title, dict_data, hidden1  #rangeslider
                 
         else:
                     
@@ -337,6 +424,7 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
             if filters == "No filters":
                 
                 fig_violin = plot_by_gene_and_tissue(gencode_id, gene_name, tissue)
+                prec_xrange = [0, 1]
                 table_title += ", apply a filter if tissue is != All"
                 prec_table_title = table_title 
                 df = pd.DataFrame([["Anova", "None", "None"], ["Kruskal", "None", "None"]], columns = ["", "f_value", "p_value"])
@@ -345,6 +433,7 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
             elif filters == "Divide by Gender":
 
                 fig_violin = plot_by_gene_and_gender_and_tissue(gencode_id, gene_name, tissue)
+                prec_xrange = [0, 1]
                 ys = [fig_violin.data[i]["y"] for i in range(len(fig_violin.data))]
                 fvalue_anova, pvalue_anova = stats.f_oneway(ys[0], ys[1])
                 fvalue_kruskal, pvalue_kruskal = stats.kruskal(ys[0], ys[1])
@@ -354,6 +443,7 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
             elif filters == "Divide by Age":
 
                 fig_violin = plot_by_gene_and_tissue_and_age(gencode_id, gene_name, tissue)
+                prec_xrange = [0, 1]
                 ys = [fig_violin.data[i]["y"] for i in range(len(fig_violin.data))]
                 fvalue_anova, pvalue_anova = stats.f_oneway(ys[0], ys[1], ys[2], ys[3], ys[4])
                 fvalue_kruskal, pvalue_kruskal = stats.kruskal(ys[0], ys[1], ys[2], ys[3], ys[4])
@@ -363,6 +453,7 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
             else: #"Divide by Gender and Age"
 
                 fig_violin = plot_by_gene_tissue_age_and_gender(gencode_id, gene_name, tissue)
+                prec_xrange = [0, 1]
                 ys = [fig_violin.data[i]["y"] for i in range(len(fig_violin.data))]
                 fvalue_anova, pvalue_anova = stats.f_oneway(ys[0], ys[1], ys[2], ys[3], ys[4], ys[5], ys[6], ys[7], ys[8], ys[9])
                 fvalue_kruskal, pvalue_kruskal = stats.kruskal(ys[0], ys[1], ys[2], ys[3], ys[4], ys[5], ys[6], ys[7], ys[8], ys[9])
@@ -370,9 +461,9 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
                 dict_data = df.to_dict('rows')
             
             fig_prec_violin = fig_violin
+            curr_violin = fig_violin
             prec_table = dict_data 
             #prec_range_slider = rangeslider
-            prec_xmax = 0 
 
             if filters != prec_filter:
                 print("Changed filter {} -> {}".format(prec_filter, filters))
@@ -380,23 +471,22 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
 
             print("Creating pie plots")
             if gene_name != prec_gene or tissue != prec_tissue:
-                   
+                print(gencode_id, gene_name, tissue)
                 if gene_name != prec_gene:
                     print("Changed gene name {} -> {}".format(prec_gene, gene_name))
                     prec_gene = gene_name 
                 if tissue != prec_tissue:
                     print("Changed tissue {} -> {}".format(prec_tissue, tissue))
                     prec_tissue = tissue 
-                    
                 fig_pie = plot_gene_tissue_data(gencode_id, gene_name, tissue) 
                 fig_prec_pie = fig_pie
                 #print("Returing figures ", fig_violin, fig_pie)
-                return fig_violin, fig_pie, table_title, dict_data, hidden1  #rangeslider
+                return fig_violin, fig_pie, table_title, dict_data, hidden1   #rangeslider
                     
             else:
              
                 #print("Returning figures ", fig_violin, fig_prec_pie)
-                return fig_violin, fig_prec_pie, table_title, dict_data, hidden1 #rangeslider
+                return fig_violin, fig_prec_pie, table_title, dict_data, hidden1   #rangeslider
 
     else:
 
@@ -410,8 +500,27 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
                 hidden1 = True
         else:
             hidden1 = True
-        return fig_prec_violin, fig_prec_pie, prec_table_title, prec_table, hidden1  #prec_rangeslider
+        return fig_prec_violin, fig_prec_pie, prec_table_title, prec_table, hidden1    #prec_rangeslider
 
 if __name__ == "__main__":
 
     app.run_server(debug=True, dev_tools_hot_reload=False, threaded = True)
+
+
+"""
+0) mettiamo una barra titolo sopra                                                       V
+
+1) spostiamo i pie bar i basso, cosi da dare maggiore spazio ai violin plot.             V
+
+2) aggiungere shapiro test (va fatto su titti i valori senza considerare le classi). TO DO
+
+3) sfondo bianco                                                V
+
+4) possibilita di fare download dei dati.                       V
+
+5) ricerca mediate inserimento nome geni                        V
+
+6) About button 
+
+7) Credits in fondo la pagina                                   V
+"""
