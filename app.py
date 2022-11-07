@@ -304,7 +304,7 @@ def update_ppi_plot(method, n_clicks, gene_name):
     else: #gene not changed
 
         if method != prec_method:
-
+            prec_method = method
             prec_title = fig_prec_ppi.layout.title.text.split("with")[0]        
             print("Updating ppi plot with method ", method)
             #deleted if curr_G is not None:
@@ -328,6 +328,7 @@ def update_ppi_plot(method, n_clicks, gene_name):
                 return fig_ppi, prec_href
 
             else:#method None
+
                 fig_ppi = visualize_network(curr_G, color_by = 'color', size_by = 'color', title = prec_title + " with method {} ".format(method),layout = "spring_layout")
                 fig_prec_ppi = fig_ppi
                 return fig_ppi, prec_href
