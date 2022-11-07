@@ -307,39 +307,30 @@ def update_ppi_plot(method, n_clicks, gene_name):
 
             prec_title = fig_prec_ppi.layout.title.text.split("with")[0]        
             print("Updating ppi plot with method ", method)
-            if curr_G is not None: 
-                print("G is not None and ", method)
-                if method != "None":
+            #deleted if curr_G is not None:
+            if method != "None":
 
-                    method_to_call = getattr(methods, method)
+                method_to_call = getattr(methods, method)
 
-                    if method == "spectral_clustering":
-                        A = nx.adjacency_matrix(curr_G)
-                        output = method_to_call(A, list(curr_G.nodes(data=False).keys()))
-                    else:
-                        output = method_to_call(curr_G)
+                if method == "spectral_clustering":
+                    A = nx.adjacency_matrix(curr_G)
+                    output = method_to_call(A, list(curr_G.nodes(data=False).keys()))
+                else:
+                    output = method_to_call(curr_G)
         
-                    nx.set_node_attributes(curr_G, output, "output")
+                nx.set_node_attributes(curr_G, output, "output")
 
-                    if "centrality" in method:
-                        fig_ppi = visualize_network(curr_G, color_by = 'output', size_by = 'output', title = prec_title + " with method {} ".format(method),layout = "spring_layout", size_scale=100)
-                    else:
-                        fig_ppi = visualize_network(curr_G, color_by = 'output', size_by = None, title = prec_title + " with method {} ".format(method),layout = "spring_layout")
-                    fig_prec_ppi = fig_ppi
-                    return fig_ppi, prec_href
+                if "centrality" in method:
+                    fig_ppi = visualize_network(curr_G, color_by = 'output', size_by = 'output', title = prec_title + " with method {} ".format(method),layout = "spring_layout", size_scale=100)
+                else:
+                    fig_ppi = visualize_network(curr_G, color_by = 'output', size_by = None, title = prec_title + " with method {} ".format(method),layout = "spring_layout")
+                fig_prec_ppi = fig_ppi
+                return fig_ppi, prec_href
 
-                else:#method None
-                    fig_ppi = visualize_network(curr_G, color_by = 'color', size_by = 'color', title = prec_title + " with method {} ".format(method),layout = "spring_layout")
-                    fig_prec_ppi = fig_ppi
-                    return fig_ppi, prec_href
-
-            else: # G None 
-        
-                 fig_ppi = empty_figure("Cannot create a PPI for gene {}. Need a ENSG to ENSP soon.".format(gene_name), "red")
-                 fig_prec_ppi = fig_ppi
-                 href = ""
-                 prec_href = href
-                 return fig_ppi, href
+            else:#method None
+                fig_ppi = visualize_network(curr_G, color_by = 'color', size_by = 'color', title = prec_title + " with method {} ".format(method),layout = "spring_layout")
+                fig_prec_ppi = fig_ppi
+                return fig_ppi, prec_href
 
         else: #method not changed
             return fig_prec_ppi, prec_href
