@@ -1,7 +1,7 @@
 """
 *************************************************************************************************************
 *                                                                                                           *
-*   GTex data visualizer developed by Ugo Lomoio at Magna Graecia University of Catanzaro   *
+*   GTex data visualizer developed by Ugo Lomoio at Magna Graecia University of Catanzaro                   *
 *                                                                                                           *
 *                                                                                                           *
 *************************************************************************************************************
@@ -497,6 +497,8 @@ def visualize_network(G, color_by = None, size_by = None, title = None, layout =
 
             if size_by is not None:
                 size = value*size_scale
+            else: 
+                size = 10
             node_size.append(size)
         node_trace.marker.color = node_color
         if size_by is not None:
@@ -562,7 +564,6 @@ def request_protein_interactions_network(gene_names, threshold=0.4):
                 edgelist.append([n1, n2])
                 weights[(n1, n2)] = experimental_score
             
-            print(edgelist)
             G = nx.from_edgelist(edgelist)
     
             for (n1, n2), weight in weights.items():

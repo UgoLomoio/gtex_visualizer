@@ -13,9 +13,12 @@ from dash.dependencies import Input, Output, State
 import plotly.graph_objects as go
 import numpy as np 
 import pandas as pd 
+import networkx as nx 
 from make_plots import *
+import methods
 import scipy.stats as stats
 
+all_methods = ["None", "betweenness_centrality", "closeness_centrality", "degree_centrality", "eigenvector_centrality", "community_louvain", "community_leiden", "spectral_clustering"] # "community_girvan_newmann"
 all_tissues = ['All', 'Adipose_Subcutaneous', 'Adipose_Visceral_Omentum', 'Adrenal_Gland',
  'Artery_Aorta', 'Artery_Coronary', 'Artery_Tibial', 'Bladder',
  'Brain_Amygdala', 'Brain_Anterior_cingulate_cortex_BA24',
@@ -70,6 +73,7 @@ fig_prec_ppi = empty_figure()
 prec_gene = None
 prec_tissue = None
 prec_filter = None
+prec_method = None 
 prec_href = ""
 prec_table = pd.DataFrame(columns = ["", "f_value", "p_value"])
 prec_table_title = "Anova and Kruskal analysis results only when Update Plots button is clicked" 
@@ -77,6 +81,7 @@ prec_xrange = [0, len(all_tissues)]
 max_download_n_clicks = 0
 max_about_n_clicks = 0
 curr_violin = fig_prec_violin 
+curr_G = None 
 
 app = Dash(__name__)          #create the dash app fist 
 server = app.server
@@ -146,12 +151,12 @@ app_dash_layout_args = [
                                             id="fig-pie",
                                             figure=empty_figure(),
                                             animate=False,
-                                            style={"position": "absolute", "left": "0px", "top": "1250px", 'backgroundColor': bg, 'color': txt_color, 'width': "800px", 'height': '800px'}, #
+                                            style={"position": "absolute", "left": "0px", "top": "1300px", 'backgroundColor': bg, 'color': txt_color, 'width': "800px", 'height': '800px'}, #
                                             config = {'responsive': True, 'displayModeBar': True}
                                 )
 
                             )],
-                            style={"position": "absolute", 'backgroundColor': bg, "left": "0px", "top": "1250px",  'color': txt_color, 'width': "700px", 'height': '1000px'}, # "left": "1000px", "top": "350px", 
+                            style={"position": "absolute", 'backgroundColor': bg, "left": "0px", "top": "1300px",  'color': txt_color, 'width': "700px", 'height': '1000px'}, # "left": "1000px", "top": "350px", 
                             type="default"
                 )
              ]
@@ -163,19 +168,25 @@ app_dash_layout_args = [
                                             id="fig-ppi",
                                             figure=empty_figure(),
                                             animate=False,
-                                            style={"position": "absolute", "left": "800px", "top": "1250px", 'backgroundColor': bg, 'color': txt_color, 'width': "800px", 'height': '800px'}, #
+                                            style={"position": "absolute", "left": "800px", "top": "1300px", 'backgroundColor': bg, 'color': txt_color, 'width': "800px", 'height': '800px'}, #
                                             config = {'responsive': True, 'displayModeBar': True}
                                 )
 
                             )],
-                            style={"position": "absolute", 'backgroundColor': bg, "left": "800px", "top": "1250px",  'color': txt_color, 'width': "800px", 'height': '800px'}, # "left": "1000px", "top": "350px", 
+                            style={"position": "absolute", 'backgroundColor': bg, "left": "800px", "top": "1300px",  'color': txt_color, 'width': "800px", 'height': '800px'}, # "left": "1000px", "top": "350px", 
                             type="default"
         ),
-        html.A("See this PPI with STRING", id = "ppi-string-link", href='', target="_blank",style={"position": "absolute", 'backgroundColor': bg, "left": "800px", "top": "1200px",  'color': txt_color, 'width': "800px"}),
+        html.A("See this PPI with STRING", id = "ppi-string-link", href='', target="_blank",style={"position": "absolute", 'backgroundColor': 'rgb(17, 17, 17)', "left": "900px", "top": "1350px",  'color': 'white', 'width': "400px"}),
 
         #add save data and save plot for ppi 
-        #add dropdown menu for color by betwenness, eigen, communities etc: da mettere in un callback apparte: input color_size_by_dd, output fig_ppi
-         
+        html.Div(
+                
+                    children = [
+                        html.Label("Select a method to apply: ", style={'backgroundColor': bg, 'color': txt_color}),
+                        dcc.Dropdown(all_methods, all_methods[0], id='methods_dd', style={'color': 'black', 'border': '3px solid #ff7300'})
+                    ],
+                    style={'width': '400px', 'display': 'inline-block', "position": "absolute", "left": "800px", "top": "1200px" }
+        ),
         html.Button(
                     "Update Plots",
                     id = "plot-button",  
@@ -250,6 +261,90 @@ def download(download_n_clicks, filters, gene_name, tissue):
         #no download pie plots for now, the user can download them as png image
         return send_violin
 
+
+@app.callback(
+
+    Output("fig-ppi", "figure"),
+    Output("ppi-string-link", "href"),
+
+    Input('methods_dd', 'value'), 
+    Input('plot-button', 'n_clicks'), 
+
+    State('genes_dd', 'value')
+)
+def update_ppi_plot(method, n_clicks, gene_name):
+    
+    global fig_prec_ppi
+    global curr_G 
+    global prec_gene 
+    global prec_href 
+    global prec_method
+        
+    if gene_name != prec_gene:
+        print("Creating PPI network plot")
+        protein_list = [gene_name] #for now only one, 
+        G = request_protein_interactions_network(protein_list)
+        curr_G = G 
+        prec_gene = gene_name
+        if G is not None:
+            print("G is not None")
+            node_colors = {node: ("green" if node in protein_list else "blue") for node in G.nodes}
+            nx.set_node_attributes(G, node_colors, "color")
+            fig_ppi = visualize_network(G, color_by = 'color', size_by = 'color', title = "{} protein - protein interaction networkx".format(protein_list), layout = "spring_layout")
+            href = get_url_string(gene_name)
+        else:
+            print("G is None")
+            fig_ppi = empty_figure("Cannot create a PPI for gene {}. Need a ENSG to ENSP soon.".format(gene_name), "red")
+            href = ""
+        fig_prec_ppi = fig_ppi
+        prec_href = href
+        prec_method = "None"
+        return fig_ppi, href
+
+    else: #gene not changed
+
+        if method != prec_method:
+
+            prec_title = fig_prec_ppi.layout.title.text.split("with")[0]        
+            print("Updating ppi plot with method ", method)
+            if curr_G is not None: 
+                print("G is not None and ", method)
+                if method != "None":
+
+                    method_to_call = getattr(methods, method)
+
+                    if method == "spectral_clustering":
+                        A = nx.adjacency_matrix(curr_G)
+                        output = method_to_call(A, list(curr_G.nodes(data=False).keys()))
+                    else:
+                        output = method_to_call(curr_G)
+        
+                    nx.set_node_attributes(curr_G, output, "output")
+
+                    if "centrality" in method:
+                        fig_ppi = visualize_network(curr_G, color_by = 'output', size_by = 'output', title = prec_title + " with method {} ".format(method),layout = "spring_layout", size_scale=100)
+                    else:
+                        fig_ppi = visualize_network(curr_G, color_by = 'output', size_by = None, title = prec_title + " with method {} ".format(method),layout = "spring_layout")
+                    fig_prec_ppi = fig_ppi
+                    return fig_ppi, prec_href
+
+                else:#method None
+                    fig_ppi = visualize_network(curr_G, color_by = 'color', size_by = 'color', title = prec_title + " with method {} ".format(method),layout = "spring_layout")
+                    fig_prec_ppi = fig_ppi
+                    return fig_ppi, prec_href
+
+            else: # G None 
+        
+                 fig_ppi = empty_figure("Cannot create a PPI for gene {}. Need a ENSG to ENSP soon.".format(gene_name), "red")
+                 fig_prec_ppi = fig_ppi
+                 href = ""
+                 prec_href = href
+                 return fig_ppi, href
+
+        else: #method not changed
+            return fig_prec_ppi, prec_href
+
+
 @app.callback(
 
     Output("fig-violin", "figure"),
@@ -257,8 +352,6 @@ def download(download_n_clicks, filters, gene_name, tissue):
     Output("table_title", "children"),
     Output("anova_table", "data"),
     Output("slider-conteiner-1", "hidden"),
-    Output("fig-ppi", "figure"),
-    Output("ppi-string-link", "href"),
 
     Input('plot-button', 'n_clicks'), 
     Input("rangeslider-1", "value"),
@@ -288,9 +381,7 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
         curr_violin = error_fig
         fig_prec_violin = error_fig
         fig_prec_pie = error_fig
-        fig_prec_ppi = error_fig
-        prec_href = ""
-        return error_fig, error_fig, error, prec_table, False, error_fig, prec_href#change prec table with table with Nones
+        return error_fig, error_fig, error, prec_table, False #change prec table with table with Nones
     
     if tissue not in all_tissues:
         error = "Tissue {} not in supported tissues".format(tissue)
@@ -298,9 +389,7 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
         curr_violin = error_fig
         fig_prec_violin = error_fig
         fig_prec_pie = error_fig
-        fig_prec_ppi = error_fig
-        prec_href = ""
-        return error_fig, error_fig, error, prec_table, False, error_fig, prec_href
+        return error_fig, error_fig, error, prec_table, False
 
     if filters not in all_filters:
         error = "Filter {} not in supported filters".format(filters)
@@ -308,15 +397,13 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
         curr_violin = error_fig
         fig_prec_violin = error_fig
         fig_prec_pie = error_fig
-        fig_prec_ppi = error_fig
-        prec_href = ""
-        return error_fig, error_fig, error, prec_table, False, error_fig, prec_href
+        return error_fig, error_fig, error, prec_table, False
 
     if prec_xrange != x_range:
         prec_xrange = x_range
         if x_range[0] == x_range[1]:
              curr_violin = fig_prec_violin
-             return fig_prec_violin, fig_prec_pie, prec_table_title, prec_table, False, fig_prec_ppi, prec_href
+             return fig_prec_violin, fig_prec_pie, prec_table_title, prec_table, False
 
         print("Setting x_range ", x_range) 
         if fig_prec_violin is not None:
@@ -328,7 +415,7 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
                 x_range_real = [x_range[0]-0.5, x_range[1]+0.5]
                 fig_prec_violin.update_layout(xaxis = {'autorange': False, 'range': x_range_real, 'uirevision': True, 'rangeslider': {'autorange': True, 'range': x_range}}, yaxis = {'autorange': False, 'range': y_range})
                 curr_violin = fig_prec_violin
-                return fig_prec_violin, fig_prec_pie, prec_table_title, prec_table, False, fig_prec_ppi, prec_href 
+                return fig_prec_violin, fig_prec_pie, prec_table_title, prec_table, False
             
     print("Clicked {}, {}, {}".format(gene_name, tissue, filters))
     if gene_name is None:
@@ -342,26 +429,6 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
     table_title = "Anova and Kruskal analysis results for: Gene '{}', Tissue '{}' and Filter '{}'".format(gene_name, tissue, filters)
     prec_table_title = table_title
     if gene_name != prec_gene or tissue != prec_tissue or filters != prec_filter:
-
-        if gene_name != prec_gene:
-            print("Creating PPI network plot")
-            protein_list = [gene_name] #for now only one, 
-            G = request_protein_interactions_network(protein_list)
-            if G is not None:
-                print("G is not None")
-                node_colors = {node: ("green" if node in protein_list else "blue") for node in G.nodes}
-                nx.set_node_attributes(G, node_colors, "color")
-                fig_ppi = visualize_network(G, color_by = 'color', size_by = 'color', title = "{} protein - protein interaction networkx".format(protein_list), layout = "spring_layout")
-                href = get_url_string(gene_name)
-            else:
-                print("G is None")
-                fig_ppi = empty_figure("Cannot create a PPI for gene {}. Need a ENSG to ENSP soon.".format(gene_name), "red")
-                href = ""
-            fig_prec_ppi = fig_ppi
-            prec_href = href
-        else:
-            fig_ppi = fig_prec_ppi
-            href = prec_href
 
         print("Changed gene name or tissue or filter")
 
@@ -434,7 +501,6 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
                 error = "{} is not a valid filter for tissue = {}".format(filters, tissue)
                 fig_violin = empty_figure(error, 'red')
                 hidden1 = True
-                #rangeslider = dcc.RangeSlider(id='rangeslider', min=0,max=len(all_tissues),value=[0, len(all_tissues)], tooltip={"placement": "bottom", "always_visible": True}) 
                 table_title += "Can't compute" 
                 prec_table_title = table_title
                 df = pd.DataFrame([["Anova", "None", "None"], ["Kruskal", "None", "None"]], columns = ["", "f_value", "p_value"])
@@ -444,7 +510,7 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
             curr_violin = fig_violin
             fig_prec_violin = fig_violin
             prec_table = dict_data 
-            #prec_range_slider = rangeslider
+           
 
             print("Creating pie plots")
             if tissue != prec_tissue:
@@ -466,7 +532,7 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
             #print("Returning figures: ", fig_violin, fig_pie)
             fig_prec_pie = fig_pie
             
-            return fig_violin, fig_pie, table_title, dict_data, hidden1, fig_ppi, href #rangeslider
+            return fig_violin, fig_pie, table_title, dict_data, hidden1
                 
         else:
                     
@@ -515,7 +581,7 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
             fig_prec_violin = fig_violin
             curr_violin = fig_violin
             prec_table = dict_data 
-            #prec_range_slider = rangeslider
+          
 
             if filters != prec_filter:
                 print("Changed filter {} -> {}".format(prec_filter, filters))
@@ -533,12 +599,12 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
                 fig_pie = plot_gene_tissue_data(gencode_id, gene_name, tissue) 
                 fig_prec_pie = fig_pie
                 #print("Returing figures ", fig_violin, fig_pie)
-                return fig_violin, fig_pie, table_title, dict_data, hidden1, fig_ppi, href #rangeslider
+                return fig_violin, fig_pie, table_title, dict_data, hidden1
                     
             else:
              
                 #print("Returning figures ", fig_violin, fig_prec_pie)
-                return fig_violin, fig_prec_pie, table_title, dict_data, hidden1, fig_ppi, href  #rangeslider
+                return fig_violin, fig_prec_pie, table_title, dict_data, hidden1
 
     else:
 
@@ -552,7 +618,7 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
                 hidden1 = True
         else:
             hidden1 = True
-        return fig_prec_violin, fig_prec_pie, prec_table_title, prec_table, hidden1, fig_prec_ppi, prec_href #prec_rangeslider
+        return fig_prec_violin, fig_prec_pie, prec_table_title, prec_table, hidden1
 
 if __name__ == "__main__":
 
