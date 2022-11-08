@@ -290,6 +290,8 @@ def update_ppi_plot(method, n_clicks, gene_name):
     global prec_href_gene 
     
     if gene_name != prec_gene:
+        
+        #prec_gene = gene_name 
         print("Creating PPI network plot")
         protein_name = gene_name
         gencode_id = get_gencode_id_from_gene_name(gene_name)
@@ -304,18 +306,15 @@ def update_ppi_plot(method, n_clicks, gene_name):
             G = request_protein_interactions_network(protein_list)
 
         curr_G = G 
-        prec_gene = gene_name
         href_gene = "http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g={}".format(gencode_id)
         prec_href_gene = href_gene
         if G is not None:
-            print("G is not None")
             node_colors = {node: ("green" if node in protein_list else "blue") for node in G.nodes}
             nx.set_node_attributes(G, node_colors, "color")
             fig_ppi = visualize_network(G, color_by = 'color', size_by = 'color', title = "{} protein - protein interaction networkx".format(gene_name), layout = "spring_layout")
             href = get_url_string(gene_name)
 
         else:
-            print("G is None")
             fig_ppi = empty_figure("Cannot create a PPI. Gene {} doens't transcribe for any protein.".format(gene_name), "red")
             href = ""
            
@@ -328,12 +327,12 @@ def update_ppi_plot(method, n_clicks, gene_name):
 
         if method != prec_method:
             prec_method = method
-            prec_title = fig_prec_ppi.layout.title.text.split("with")[0]        #fix me:  
-            print(prec_title)
+            prec_title = fig_prec_ppi.layout.title.text.split("with")[0].rstrip()          
             print("Updating ppi plot with method ", method)
             if curr_G is not None:
-                if method != "None":
                 
+                if method != "None":
+                   
                     method_to_call = getattr(methods, method)
 
                     if method == "spectral_clustering":
@@ -352,13 +351,15 @@ def update_ppi_plot(method, n_clicks, gene_name):
                     return fig_ppi, prec_href, prec_href_gene
 
                 else:#method None
-
+                    
                     fig_ppi = visualize_network(curr_G, color_by = 'color', size_by = 'color', title = prec_title + " with method {} ".format(method),layout = "spring_layout")
                     fig_prec_ppi = fig_ppi
                     return fig_ppi, prec_href, prec_href_gene
-            else:
+            else:#curr_G None
+                
                 return fig_prec_ppi, "", prec_href_gene #fig_prec_ppi in this case is an error figure: empty figure with red title containing the error
         else: #method not changed
+           
             return fig_prec_ppi, prec_href, prec_href_gene
 
 @app.callback(
