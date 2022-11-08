@@ -42,6 +42,9 @@ with open('all_genes_dict.txt', 'r') as f:
     data = f.readline()
     all_genes_dict = dict(eval(str(data)))
 
+with open("ENSG_to_ENSP.txt", "r") as f:
+    ensembl_gene_protein_mapping = dict(eval(f.read()))
+
 all_filters = ["No filters", "Divide by Gender", "Divide by Age", "Divide by Gender and Age"]
 all_ages = ["20-29", "30-39", "40-49", "50-59", "60-69", "70-79"]
 all_genders = ["male", "female"]
@@ -57,10 +60,10 @@ def empty_figure(title = "Fill Dropdown menus and press the Update Plot Button",
 
 def get_current_y_range(x_range, y_all):
     
-    y = y_all[int(x_range[0]):int(x_range[1])]
+    y = y_all[int(x_range[0]):int(x_range[1])] #FIX X RANGE 
     temp = max(max(y))
     temp_min = -0.1
-    return [temp_min, temp+0.1]#da aggiustare
+    return [temp_min, temp+0.1]#FIX
 
 def get_gencode_id_from_gene_name(gene_name):
 
@@ -75,6 +78,7 @@ prec_tissue = None
 prec_filter = None
 prec_method = None 
 prec_href = ""
+prec_href_gene = ""
 prec_table = pd.DataFrame(columns = ["", "f_value", "p_value"])
 prec_table_title = "Anova and Kruskal analysis results only when Update Plots button is clicked" 
 prec_xrange = [0, len(all_tissues)]
@@ -97,7 +101,9 @@ app_dash_layout_args = [
                 
                     children = [
                         html.Label("Select a gene: ", style={'backgroundColor': bg, 'color': txt_color}),
-                        dcc.Dropdown(list(all_genes_dict.keys()), list(all_genes_dict.keys())[0], id='genes_dd', style={'color': 'black', 'border': '3px solid #ff7300'})
+                        dcc.Dropdown(list(all_genes_dict.keys()), list(all_genes_dict.keys())[0], id='genes_dd', style={'color': 'black', 'border': '3px solid #ff7300'}),
+                        html.A("Gene info", id = "ensembl-gene-link", href='', target="_blank",style={"position": "absolute", 'backgroundColor': bg, "left": "150px", "top": "100px", 'color': "blue", 'width': "400px"}),
+
                     ],
                     style={'width': '100%', 'display': 'inline-block'}
         ),
@@ -266,7 +272,8 @@ def download(download_n_clicks, filters, gene_name, tissue):
 
     Output("fig-ppi", "figure"),
     Output("ppi-string-link", "href"),
-
+    Output("ensembl-gene-link", "href"),
+    
     Input('methods_dd', 'value'), 
     Input('plot-button', 'n_clicks'), 
 
@@ -279,63 +286,71 @@ def update_ppi_plot(method, n_clicks, gene_name):
     global prec_gene 
     global prec_href 
     global prec_method
-        
+    global prec_href_gene 
+    
     if gene_name != prec_gene:
         print("Creating PPI network plot")
-        protein_list = [gene_name] #for now only one, 
+        gencode_id = get_gencode_id_from_gene_name(gene_name)
+        protein_name = ensembl_gene_protein_mapping[gencode_id.split(".")[0]]
+        protein_list = [protein_name] 
         G = request_protein_interactions_network(protein_list)
         curr_G = G 
         prec_gene = gene_name
+        href_gene = "http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g={}".format(gencode_id)
+        prec_href_gene = href_gene
         if G is not None:
             print("G is not None")
             node_colors = {node: ("green" if node in protein_list else "blue") for node in G.nodes}
             nx.set_node_attributes(G, node_colors, "color")
             fig_ppi = visualize_network(G, color_by = 'color', size_by = 'color', title = "{} protein - protein interaction networkx".format(protein_list), layout = "spring_layout")
             href = get_url_string(gene_name)
+
         else:
             print("G is None")
-            fig_ppi = empty_figure("Cannot create a PPI for gene {}. Need a ENSG to ENSP soon.".format(gene_name), "red")
+            fig_ppi = empty_figure("Cannot create a PPI. Gene {} doens't transcribe for any protein.".format(gencode_id), "red")
             href = ""
+           
         fig_prec_ppi = fig_ppi
         prec_href = href
         prec_method = "None"
-        return fig_ppi, href
+        return fig_ppi, href, href_gene 
 
     else: #gene not changed
 
         if method != prec_method:
             prec_method = method
-            prec_title = fig_prec_ppi.layout.title.text.split("with")[0]        
+            prec_title = fig_prec_ppi.layout.title.text.split("with")[0]        #fix me:  
+            print(prec_title)
             print("Updating ppi plot with method ", method)
-            #deleted if curr_G is not None:
-            if method != "None":
+            if curr_G is not None:
+                if method != "None":
+                
+                    method_to_call = getattr(methods, method)
 
-                method_to_call = getattr(methods, method)
-
-                if method == "spectral_clustering":
-                    A = nx.adjacency_matrix(curr_G)
-                    output = method_to_call(A, list(curr_G.nodes(data=False).keys()))
-                else:
-                    output = method_to_call(curr_G)
+                    if method == "spectral_clustering":
+                        A = nx.adjacency_matrix(curr_G)
+                        output = method_to_call(A, list(curr_G.nodes(data=False).keys()))
+                    else:
+                        output = method_to_call(curr_G)
         
-                nx.set_node_attributes(curr_G, output, "output")
+                    nx.set_node_attributes(curr_G, output, "output")
 
-                if "centrality" in method:
-                    fig_ppi = visualize_network(curr_G, color_by = 'output', size_by = 'output', title = prec_title + " with method {} ".format(method),layout = "spring_layout", size_scale=100)
-                else:
-                    fig_ppi = visualize_network(curr_G, color_by = 'output', size_by = None, title = prec_title + " with method {} ".format(method),layout = "spring_layout")
-                fig_prec_ppi = fig_ppi
-                return fig_ppi, prec_href
+                    if "centrality" in method:
+                        fig_ppi = visualize_network(curr_G, color_by = 'output', size_by = 'output', title = prec_title + " with method {} ".format(method),layout = "spring_layout", size_scale=100)
+                    else:
+                        fig_ppi = visualize_network(curr_G, color_by = 'output', size_by = None, title = prec_title + " with method {} ".format(method),layout = "spring_layout")
+                    fig_prec_ppi = fig_ppi
+                    return fig_ppi, prec_href, prec_href_gene
 
-            else:#method None
+                else:#method None
 
-                fig_ppi = visualize_network(curr_G, color_by = 'color', size_by = 'color', title = prec_title + " with method {} ".format(method),layout = "spring_layout")
-                fig_prec_ppi = fig_ppi
-                return fig_ppi, prec_href
-
+                    fig_ppi = visualize_network(curr_G, color_by = 'color', size_by = 'color', title = prec_title + " with method {} ".format(method),layout = "spring_layout")
+                    fig_prec_ppi = fig_ppi
+                    return fig_ppi, prec_href, prec_href_gene
+            else:
+                return fig_prec_ppi, "", prec_href_gene #fig_prec_ppi in this case is an error figure: empty figure with red title containing the error
         else: #method not changed
-            return fig_prec_ppi, prec_href
-
+            return fig_prec_ppi, prec_href, prec_href_gene
 
 @app.callback(
 
