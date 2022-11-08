@@ -14,11 +14,10 @@ import networkx as nx
 import pandas as pd 
 import numpy as np 
 from pandas import json_normalize
-
+import random 
 """
 GTex API requests https://www.gtexportal.org/home/api-docs/
 """
-
 colors = ['aliceblue', 'antiquewhite', 'aqua', 'aquamarine', 'azure',
                 'beige', 'bisque', 'blanchedalmond', 'blue',
                 'blueviolet', 'brown', 'burlywood', 'cadetblue',
@@ -209,7 +208,8 @@ def plot_by_gene(gencode_id, gene_name):
     data = {tissue:[float(elem) for elem in list(df['data'][df['tissueSiteDetailId'] == tissue].values[0])] for tissue in tissues}
     fig = go.FigureWidget()
     for i, (tissue, tissue_data) in enumerate(data.items()):
-        fig.add_trace(go.Violin(x0 = tissue, y=tissue_data, points='outliers', name = tissue, box_visible=True,  line_color='white', fillcolor = colors[i], meanline_visible=True, opacity=0.8))
+        color = random.sample(colors, 1)[0]
+        fig.add_trace(go.Violin(x0 = tissue, y=tissue_data, points='outliers', name = tissue, box_visible=True,  line_color='white', fillcolor = color, meanline_visible=True, opacity=0.8))
     
     fig.update_xaxes(type='category')
     fig.update_layout(template="plotly_dark", hovermode='x unified', yaxis_title="TPM", title= "Violin plot of Gene {}".format(gene_name), autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(
@@ -343,7 +343,7 @@ def plot_gene_tissue_data(gene, gene_name, tissue):
     fig.add_trace(go.Pie(labels=list(data_deaths.keys()), values= list(data_deaths.values()), marker_colors=deaths_colors, name="Deaths"),
                   2, 2)
     fig.update_traces(hoverinfo='label+percent', textinfo = 'label')
-    fig.update_layout(template="plotly_dark", hovermode='x unified', title= "Pie charts for Gene {} and Tissue {}".format(gene_name, tissue), xaxis =  {                                     
+    fig.update_layout(template="plotly_dark", hovermode='x unified', title= "Pie charts for Gene {} and Tissue {}".format(gene_name, tissue), autosize=False, width=600, height=800, xaxis =  {                                     
                       'showgrid': False}, yaxis = {'showgrid': True}, showlegend=False)    
     return fig
 
@@ -380,7 +380,7 @@ def plot_gene_data(gene, gene_name):
     fig.add_trace(go.Pie(labels=list(data_tissues.keys()), values= list(data_tissues.values()), marker_colors=colors, name="Tissues"),
                   3, 1)
     fig.update_traces(hoverinfo='label+percent', textinfo = 'label')
-    fig.update_layout(template="plotly_dark", hovermode='x unified', title= "Pie charts for Gene {} and all tissues".format(gene_name), xaxis =  {                                     
+    fig.update_layout(template="plotly_dark", hovermode='x unified', title= "Pie charts for Gene {} and all tissues".format(gene_name), autosize=False, width=600, height=800, xaxis =  {                                     
                       'showgrid': False}, yaxis = {'showgrid': True}, showlegend=False)    
     return fig
 
@@ -522,13 +522,14 @@ def visualize_network(G, color_by = None, size_by = None, title = None, layout =
                       xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
                       yaxis=dict(showgrid=False, zeroline=False, showticklabels=False), 
                       template="plotly_dark",
-                      width = 800,
-                      height = 1000
+                      autosize=False, 
+                      width=900, 
+                      height=800
                       ),
     )
     return fig
 
-def request_protein_interactions_network(gene_names, threshold=0.4):
+def request_protein_interactions_network(protein_id, threshold=0.4):
     
     string_api_url = "https://version-11-5.string-db.org/api"
     output_format = "tsv-no-header"
@@ -537,7 +538,7 @@ def request_protein_interactions_network(gene_names, threshold=0.4):
     
     params = {
 
-        "identifiers" : "%0d".join(gene_names), # your protein
+        "identifiers" : "%0d".join(protein_id), # your protein
         "species" : 9606, # species NCBI identifier 
          #"caller_identity" : "test_for_now" # your app name
 

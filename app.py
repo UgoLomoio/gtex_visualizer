@@ -8,6 +8,7 @@
 *************************************************************************************************************
 """
 
+from pickle import NONE
 from dash import html, dcc, Dash, dash_table
 from dash.dependencies import Input, Output, State
 import plotly.graph_objects as go
@@ -162,7 +163,7 @@ app_dash_layout_args = [
                                 )
 
                             )],
-                            style={"position": "absolute", 'backgroundColor': bg, "left": "0px", "top": "1300px",  'color': txt_color, 'width': "700px", 'height': '1000px'}, # "left": "1000px", "top": "350px", 
+                            style={"position": "absolute", 'backgroundColor': bg, "left": "0px", "top": "1300px",  'color': txt_color, 'width': "600px", 'height': '1000px'}, # "left": "1000px", "top": "350px", 
                             type="default"
                 )
              ]
@@ -174,12 +175,12 @@ app_dash_layout_args = [
                                             id="fig-ppi",
                                             figure=empty_figure(),
                                             animate=False,
-                                            style={"position": "absolute", "left": "800px", "top": "1300px", 'backgroundColor': bg, 'color': txt_color, 'width': "800px", 'height': '800px'}, #
+                                            style={"position": "absolute", "left": "600px", "top": "1300px", 'backgroundColor': bg, 'color': txt_color, 'width': "900px", 'height': '800px'}, #
                                             config = {'responsive': True, 'displayModeBar': True}
                                 )
 
                             )],
-                            style={"position": "absolute", 'backgroundColor': bg, "left": "800px", "top": "1300px",  'color': txt_color, 'width': "800px", 'height': '800px'}, # "left": "1000px", "top": "350px", 
+                            style={"position": "absolute", 'backgroundColor': bg, "left": "600px", "top": "1300px",  'color': txt_color, 'width': "900px", 'height': '800px'}, # "left": "1000px", "top": "350px", 
                             type="default"
         ),
         html.A("See this PPI with STRING", id = "ppi-string-link", href='', target="_blank",style={"position": "absolute", 'backgroundColor': 'rgb(17, 17, 17)', "left": "900px", "top": "1350px",  'color': 'white', 'width': "400px"}),
@@ -290,10 +291,18 @@ def update_ppi_plot(method, n_clicks, gene_name):
     
     if gene_name != prec_gene:
         print("Creating PPI network plot")
+        protein_name = gene_name
         gencode_id = get_gencode_id_from_gene_name(gene_name)
-        protein_name = ensembl_gene_protein_mapping[gencode_id.split(".")[0]]
+        gencode_id = gencode_id.split(".")[0]
         protein_list = [protein_name] 
         G = request_protein_interactions_network(protein_list)
+        
+        if G is None:
+
+            protein_id = ensembl_gene_protein_mapping[gencode_id]
+            protein_list = [protein_id] 
+            G = request_protein_interactions_network(protein_list)
+
         curr_G = G 
         prec_gene = gene_name
         href_gene = "http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g={}".format(gencode_id)
@@ -302,12 +311,12 @@ def update_ppi_plot(method, n_clicks, gene_name):
             print("G is not None")
             node_colors = {node: ("green" if node in protein_list else "blue") for node in G.nodes}
             nx.set_node_attributes(G, node_colors, "color")
-            fig_ppi = visualize_network(G, color_by = 'color', size_by = 'color', title = "{} protein - protein interaction networkx".format(protein_list), layout = "spring_layout")
+            fig_ppi = visualize_network(G, color_by = 'color', size_by = 'color', title = "{} protein - protein interaction networkx".format(gene_name), layout = "spring_layout")
             href = get_url_string(gene_name)
 
         else:
             print("G is None")
-            fig_ppi = empty_figure("Cannot create a PPI. Gene {} doens't transcribe for any protein.".format(gencode_id), "red")
+            fig_ppi = empty_figure("Cannot create a PPI. Gene {} doens't transcribe for any protein.".format(gene_name), "red")
             href = ""
            
         fig_prec_ppi = fig_ppi
