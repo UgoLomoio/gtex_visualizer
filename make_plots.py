@@ -202,13 +202,17 @@ def plot_by_gene_and_tissue_and_age(gencode_id, gene_name, tissue):
 
 def plot_by_gene(gencode_id, gene_name):
     
-    
+    selected_colors = []
     df = request_api_gene_expression(gencode_id)
     tissues = np.unique(list(df["tissueSiteDetailId"]))
     data = {tissue:[float(elem) for elem in list(df['data'][df['tissueSiteDetailId'] == tissue].values[0])] for tissue in tissues}
     fig = go.FigureWidget()
     for i, (tissue, tissue_data) in enumerate(data.items()):
-        color = random.sample(colors, 1)[0]
+        while(True):
+            color = random.sample(colors, 1)[0]
+            if color not in selected_colors:
+                selected_colors.append(color)
+                break
         fig.add_trace(go.Violin(x0 = tissue, y=tissue_data, points='outliers', name = tissue, box_visible=True,  line_color='white', fillcolor = color, meanline_visible=True, opacity=0.8))
     
     fig.update_xaxes(type='category')
@@ -386,7 +390,7 @@ def plot_gene_data(gene, gene_name):
 
 #PPI plot
 
-def visualize_network(G, color_by = None, size_by = None, title = None, layout = "spring_layout", size_scale=10):
+def visualize_network(G, color_by = None, size_by = None, title = None, layout = "spring_layout", size_scale=10, with_labels = False):
     """
       Layouts: [graphviz_layout, pydot_layout, bipartite_layout, circular_layout, kamada_kawai_layout, planar_layout, random_layout, rescale_layout,
                 spring_layout, spectral_layout, spiral_layout, multipartite_layout] 
@@ -459,10 +463,10 @@ def visualize_network(G, color_by = None, size_by = None, title = None, layout =
         x, y = G.nodes[node]['pos']
         node_x.append(x)
         node_y.append(y)
-
+    
     node_trace = go.Scatter(
                                x=node_x, y=node_y,
-                                mode= 'markers',
+                                mode= "markers",
                                 hoverinfo="name+text",
                                 marker = dict(
                                   showscale=True,
@@ -483,7 +487,6 @@ def visualize_network(G, color_by = None, size_by = None, title = None, layout =
                                   line_width=2
                                )
                             )
-
     if color_by is not None:
         node_color = []
         node_size = []
@@ -504,6 +507,21 @@ def visualize_network(G, color_by = None, size_by = None, title = None, layout =
         if size_by is not None:
             node_trace.marker.size = node_size
 
+    annotations = []
+    if with_labels:
+        for node in G.nodes(data=True):
+            annotations.append(
+                dict(
+                    x=node[1]["pos"][0],
+                    y=node[1]["pos"][1],
+                    text=node[0], # node name that will be displayed
+                    xanchor='left',
+                    xshift=10,
+                    font=dict(color='white', size=12),
+                    showarrow=False, arrowhead=1, ax=-10, ay=-10
+                )
+            )
+    
     nodes_text = []
     for node, attributes in G.nodes(data=True):
         node_text = "Node: {}\n\n".format(node)
@@ -512,6 +530,7 @@ def visualize_network(G, color_by = None, size_by = None, title = None, layout =
         nodes_text.append(node_text)
     node_trace.text = nodes_text
 
+    print(annotations)
     fig = go.Figure(data=[edge_trace, node_trace],
                       layout=go.Layout(
                       title=title,
@@ -524,7 +543,8 @@ def visualize_network(G, color_by = None, size_by = None, title = None, layout =
                       template="plotly_dark",
                       autosize=False, 
                       width=900, 
-                      height=800
+                      height=800,
+                      annotations = annotations
                       ),
     )
     return fig
@@ -588,3 +608,63 @@ def get_url_string(protein_name):
 
     response = requests.post(request_url, data=params).text    
     return response
+
+
+#multi dropdown tissues plot (up to 20 tissues)
+
+def multi_tissues_violin_plot(gene, gene_name, tissues):
+   
+    df = request_api_gene_expression(gene)
+    limit = 20
+    fig = go.FigureWidget()
+    unique_tissues = np.unique(tissues)
+    selected_colors = []
+    for tissue in unique_tissues[:limit]:
+        if tissue != "All":
+            while(True):
+                color = random.sample(colors, 1)[0]
+                if color not in selected_colors:
+                    selected_colors.append(color)
+                    break
+            data = [float(elem) for elem in list(df['data'][df['tissueSiteDetailId'] == tissue].values[0])]
+            fig.add_trace(go.Violin(x0=tissue, y=data, name=tissue, box_visible=True, line_color='white', meanline_visible=True, fillcolor=color, points="outliers", opacity=0.8))
+    fig.update_layout(template="plotly_dark", hovermode='x unified', yaxis_title="TPM", title= "Violin plot of Gene {} and First {} Tissues selected".format(gene_name, limit), autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(
+                     visible=True)))
+    return fig
+
+#multi dropdown genes plots (up to 2 genes and all tissues)
+
+def multi_genes_violin_plot(genes, genes_name, tissues):
+
+    dfs = {}
+    for gene in genes:
+        dfs[gene] = request_api_gene_expression(gene)
+    
+    limit_total = 40
+    unique_tissues = np.unique(tissues)
+    unique_genes = np.unique(genes)
+    if len(unique_genes)*len(unique_tissues) > limit_total:
+        if len(unique_genes) > 2:
+            limit_g = 2
+        if len(unique_tissues) > 20:
+            limit_t = 20
+    else:
+        limit_g = len(unique_genes)
+        limit_t = len(unique_tissues)
+
+    fig = go.FigureWidget()
+
+    selected_colors = []
+    for gene in unique_genes[:limit_g]: 
+        for tissue in unique_tissues[:limit_t]:
+            if tissue != "All":
+                while(True):
+                    color = random.sample(colors, 1)[0]
+                    if color not in selected_colors:
+                        selected_colors.append(color)
+                    break
+                data = [float(elem) for elem in list(dfs[gene]['data'][dfs[gene]['tissueSiteDetailId'] == tissue].values[0])]
+                fig.add_trace(go.Violin(x0=tissue, y=data, name=tissue, box_visible=True, line_color='white', meanline_visible=True, fillcolor=color, points="outliers", opacity=0.8))
+    fig.update_layout(violinmode='group', hovermode='x unified', template="plotly_dark", yaxis_title="TPM", title= "Violin plot of First {} Genes and First {} Tissues selected".format(limit_g, limit_t), autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(
+                     visible=True)))
+    return fig
