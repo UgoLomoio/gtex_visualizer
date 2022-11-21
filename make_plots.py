@@ -643,6 +643,7 @@ def multi_genes_violin_plot(genes, genes_name, tissues):
     limit_total = 40
     unique_tissues = np.unique(tissues)
     unique_genes = np.unique(genes)
+    unique_genes_name = np.unique(genes_name)
     if len(unique_genes)*len(unique_tissues) > limit_total:
         if len(unique_genes) > 2:
             limit_g = 2
@@ -655,7 +656,8 @@ def multi_genes_violin_plot(genes, genes_name, tissues):
     fig = go.FigureWidget()
 
     selected_colors = []
-    for gene in unique_genes[:limit_g]: 
+    for i, gene in enumerate(unique_genes[:limit_g]): 
+        gene_name = unique_genes_name[i]
         for tissue in unique_tissues[:limit_t]:
             if tissue != "All":
                 while(True):
@@ -664,7 +666,7 @@ def multi_genes_violin_plot(genes, genes_name, tissues):
                         selected_colors.append(color)
                     break
                 data = [float(elem) for elem in list(dfs[gene]['data'][dfs[gene]['tissueSiteDetailId'] == tissue].values[0])]
-                fig.add_trace(go.Violin(x0=tissue, y=data, name=tissue, box_visible=True, line_color='white', meanline_visible=True, fillcolor=color, points="outliers", opacity=0.8))
+                fig.add_trace(go.Violin(x0=tissue, y=data, name="{}_{}".format(gene_name, tissue), box_visible=True, line_color='white', meanline_visible=True, fillcolor=color, points="outliers", opacity=0.8))
     fig.update_layout(violinmode='group', hovermode='x unified', template="plotly_dark", yaxis_title="TPM", title= "Violin plot of First {} Genes and First {} Tissues selected".format(limit_g, limit_t), autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(
                      visible=True)))
     return fig
