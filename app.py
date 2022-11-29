@@ -83,9 +83,11 @@ prec_table = pd.DataFrame(columns = ["", "f_value", "p_value"])
 prec_table_title = "Anova, Kruskal and Shapiro analysis results only when Update Plots button is clicked" 
 prec_xrange = [0, len(all_tissues)]
 max_download_n_clicks = 0
+max_download_data_n_clicks = 0
 max_about_n_clicks = 0
 curr_violin = fig_prec_violin 
 curr_G = None 
+curr_data = None
 curr_fvalue_shapiro = "None"
 curr_pvalue_shapiro = "None"
 
@@ -127,7 +129,19 @@ app_dash_layout_args = [
                     ],
                     style={'width': '100%', 'display': 'inline-block'}
         ),
-
+        html.Div(
+                [       
+                    html.Button(
+                                "Download Data",
+                                id = "download-data-button",  
+                                n_clicks=0,
+                                style={"position": "absolute", "left": "700px", "top": "50px", 'cursor': 'pointer', 'border': '0px', 
+                                       'border-radius': '3px', 'background-color': 'rgb(31, 24, 252)', 'color': 'white', 'font-size': '12px',
+                                       'font-family': 'Open Sans', 'width': "200px", 'height': '40px', 'border': '3px solid #ff7300'}
+                    ),
+                    dcc.Download(id="download-data"),
+                ]
+        ),
         html.Div(
              children = [   
                 dcc.Loading(id = "loading-violin", style={"position": "absolute", "left": "0px", "top": "350px", 'backgroundColor': bg, 
@@ -199,7 +213,7 @@ app_dash_layout_args = [
                     "Update Plots",
                     id = "plot-button",  
                     n_clicks=0,
-                    style={"position": "absolute", "left": "700px", "top": "50px", 'cursor': 'pointer', 'border': '0px', 
+                    style={"position": "absolute", "left": "0px", "top": "300px", 'cursor': 'pointer', 'border': '0px', 
                            'border-radius': '3px', 'background-color': 'rgb(31, 24, 252)', 'color': 'white', 'font-size': '12px',
                            'font-family': 'Open Sans', 'width': "200px", 'height': '40px', 'border': '3px solid #ff7300'}
         ),
@@ -207,7 +221,7 @@ app_dash_layout_args = [
                 [       
                     html.Button(
                                 "Download Plots",#and Data
-                                id = "download-button",  
+                                id = "download-plots-button",  
                                 n_clicks=0,
                                 style={"position": "absolute", "left": "1000px", "top": "50px", 'cursor': 'pointer', 'border': '0px', 
                                        'border-radius': '3px', 'background-color': 'rgb(31, 24, 252)', 'color': 'white', 'font-size': '12px',
@@ -251,23 +265,91 @@ app.layout = html.Div(
   
 @app.callback(
     Output("download-plots", "data"),
-    Input('download-button', 'n_clicks'), 
+    Input('download-plots-button', 'n_clicks'),
     State('filters_dd', 'value'),
     State('genes_dd', 'value'),
     State('tissues_dd', 'value'),
     prevent_initial_call=True
 )
-def download(download_n_clicks, filters, gene_name, tissue):
+def download_plots(download_n_clicks, filters, gene_names, tissues):
 
     global max_download_n_clicks
     global curr_violin
 
     if download_n_clicks > max_download_n_clicks:
         max_download_n_clicks = download_n_clicks
-        curr_violin.write_html("./assets/plots/{}_{}_{}_violin.html".format(gene_name, tissue, filters))
-        send_violin = dcc.send_file("./assets/plots/{}_{}_{}_violin.html".format(gene_name, tissue, filters))
+                
+        if isinstance(tissues, str):
+            if isinstance(gene_names, str):
+                curr_violin.write_html("./assets/plots/{}_{}_{}_violin.html".format(gene_names, tissues.replace("[", "").replace("]", "").replace("'", ""), filters.replace(" ", "")))
+                send_violin = dcc.send_file("./assets/plots/{}_{}_{}_violin.html".format(gene_names, tissues.replace("[", "").replace("]", "").replace("'", ""), filters.replace(" ", "")))
+            else:
+                genes_str = ""
+                for gene in gene_names:
+                    genes_str+=gene
+                curr_violin.write_html("./assets/plots/{}_{}_{}_violin.html".format(genes_str, tissues.replace("[", "").replace("]", "").replace("'", ""), filters.replace(" ", "")))
+                send_violin = dcc.send_file("./assets/plots/{}_{}_{}_violin.html".format(genes_str, tissues.replace("[", "").replace("]", "").replace("'", ""), filters.replace(" ", "")))
+        else:
+            tissues_str = ""
+            for tissue in tissues:
+                tissues_str+=tissue
+            if isinstance(gene_names, str):
+                curr_violin.write_html("./assets/plots/{}_{}_{}_violin.html".format(gene_names, tissues_str, filters.replace(" ", "")))
+                send_violin = dcc.send_file("./assets/plots/{}_{}_{}_violin.html".format(gene_names, tissues_str, filters.replace(" ", "")))
+            else:
+                genes_str = ""
+                for gene in gene_names:
+                    genes_str+=gene
+                curr_violin.write_html("./assets/plots/{}_{}_{}_violin.html".format(genes_str, tissues_str, filters.replace(" ", "")))
+                send_violin = dcc.send_file("./assets/plots/{}_{}_{}_violin.html".format(genes_str, tissues_str, filters.replace(" ", "")))
         #no download pie plots for now, the user can download them as png image
         return send_violin
+
+  
+@app.callback(
+    Output("download-data", "data"),
+    Input('download-data-button', 'n_clicks'),
+    State('filters_dd', 'value'),
+    State('genes_dd', 'value'),
+    State('tissues_dd', 'value'),
+    prevent_initial_call=True
+)
+def download_data(download_n_clicks, filters, gene_names, tissues):
+
+    global max_download_data_n_clicks
+   
+
+    if download_n_clicks > max_download_data_n_clicks:
+        max_download_data_n_clicks = download_n_clicks
+        
+        if isinstance(tissues, str):
+            if isinstance(gene_names, str):
+                with open("./assets/data/{}_{}_{}_data.txt".format(gene_names, tissues.replace("[", "").replace("]", "").replace("'", ""), filters.replace(" ", "")), 'w') as f:
+                    f.write(curr_data.to_string())
+                send_data = dcc.send_file("./assets/data/{}_{}_{}_data.txt".format(gene_names, tissues.replace("[", "").replace("]", "").replace("'", ""), filters.replace(" ", "")))
+            else:
+                genes_str = ""
+                for gene in gene_names:
+                    genes_str+=gene
+                with open("./assets/data/{}_{}_{}_data.txt".format(genes_str, tissues.replace("[", "").replace("]", "").replace("'", ""), filters.replace(" ", "")), 'w') as f:
+                    f.write(curr_data.to_string())
+                send_data = dcc.send_file("./assets/data/{}_{}_{}_data.txt".format(genes_str, tissues.replace("[", "").replace("]", "").replace("'", ""), filters.replace(" ", "")))
+        else:
+            tissues_str = ""
+            for tissue in tissues:
+                tissues_str+=tissue
+            if isinstance(gene_names, str):
+                with open("./assets/data/{}_{}_{}_data.txt".format(gene_names, tissues_str, filters.replace(" ", "")), 'w') as f:
+                    f.write(curr_data.to_string())
+                send_data = dcc.send_file("./assets/data/{}_{}_{}_data.txt".format(gene_names, tissues_str, filters.replace(" ", "")))
+            else:
+                genes_str = ""
+                for gene in gene_names:
+                    genes_str+=gene
+                with open("./assets/data/{}_{}_{}_data.txt".format(genes_str, tissues_str, filters.replace(" ", "")), 'w') as f:
+                    f.write(curr_data.to_string())
+                send_data = dcc.send_file("./assets/data/{}_{}_{}_data.txt".format(genes_str, tissues_str, filters.replace(" ", "")))
+        return send_data
 
 def single_dd_values_handler(x_range, filters, gene_name, tissue, gencode_id):
     
@@ -284,7 +366,7 @@ def single_dd_values_handler(x_range, filters, gene_name, tissue, gencode_id):
     global curr_violin
     global curr_fvalue_shapiro
     global curr_pvalue_shapiro
-        
+    global curr_data
 
     table_title = "Anova, Kruskal and Shapiro analysis results for: Gene '{}', Tissue '{}' and Filter '{}'".format(gene_name, tissue, filters)
     prec_table_title = table_title
@@ -293,7 +375,7 @@ def single_dd_values_handler(x_range, filters, gene_name, tissue, gencode_id):
         print("Creating violin plots")
         if filters == "No filters":
 
-            fig_violin = plot_by_gene(gencode_id, gene_name)
+            fig_violin, curr_data = plot_by_gene(gencode_id, gene_name)
             hidden1 = False
                 
             ys = [fig_violin.data[i]["y"] for i in range(len(fig_violin.data))]
@@ -325,7 +407,7 @@ def single_dd_values_handler(x_range, filters, gene_name, tissue, gencode_id):
 
         elif filters == "Divide by Gender":
                         
-            fig_violin = plot_by_gene_and_gender(gencode_id, gene_name)
+            fig_violin, curr_data = plot_by_gene_and_gender(gencode_id, gene_name)
             hidden1 = False
                 
             ys = [fig_violin.data[i]["y"] for i in range(len(fig_violin.data))]
@@ -411,7 +493,7 @@ def single_dd_values_handler(x_range, filters, gene_name, tissue, gencode_id):
 
         if filters == "No filters":
                 
-            fig_violin = plot_by_gene_and_tissue(gencode_id, gene_name, tissue)
+            fig_violin, curr_data = plot_by_gene_and_tissue(gencode_id, gene_name, tissue)
             prec_xrange = [0, 1]
             ys = [fig_violin.data[i]["y"] for i in range(len(fig_violin.data))]
             ys_shapiro = [elem for y in ys for elem in y]
@@ -425,7 +507,7 @@ def single_dd_values_handler(x_range, filters, gene_name, tissue, gencode_id):
             
         elif filters == "Divide by Gender":
 
-            fig_violin = plot_by_gene_and_gender_and_tissue(gencode_id, gene_name, tissue)
+            fig_violin, curr_data = plot_by_gene_and_gender_and_tissue(gencode_id, gene_name, tissue)
             prec_xrange = [0, 1]
             ys = [fig_violin.data[i]["y"] for i in range(len(fig_violin.data))]
             fvalue_anova, pvalue_anova = stats.f_oneway(ys[0], ys[1])
@@ -441,7 +523,7 @@ def single_dd_values_handler(x_range, filters, gene_name, tissue, gencode_id):
             
         elif filters == "Divide by Age":
 
-            fig_violin = plot_by_gene_and_tissue_and_age(gencode_id, gene_name, tissue)
+            fig_violin, curr_data = plot_by_gene_and_tissue_and_age(gencode_id, gene_name, tissue)
             prec_xrange = [0, 1]
             ys = [fig_violin.data[i]["y"] for i in range(len(fig_violin.data))]
             fvalue_anova, pvalue_anova = stats.f_oneway(ys[0], ys[1], ys[2], ys[3], ys[4])
@@ -457,7 +539,7 @@ def single_dd_values_handler(x_range, filters, gene_name, tissue, gencode_id):
                         
         else: #"Divide by Gender and Age"
 
-            fig_violin = plot_by_gene_tissue_age_and_gender(gencode_id, gene_name, tissue)
+            fig_violin, curr_data = plot_by_gene_tissue_age_and_gender(gencode_id, gene_name, tissue)
             prec_xrange = [0, 1]
             ys = [fig_violin.data[i]["y"] for i in range(len(fig_violin.data))]
             fvalue_anova, pvalue_anova = stats.f_oneway(ys[0], ys[1], ys[2], ys[3], ys[4], ys[5], ys[6], ys[7], ys[8], ys[9])
@@ -515,6 +597,7 @@ def multi_dd_values_handler(x_range, filters, gene_name, tissue, gencode_id):
     global curr_violin
     global curr_fvalue_shapiro
     global curr_pvalue_shapiro
+    global curr_data 
 
     table_title = "Anova, Kruskal and Shapiro analysis results for: Gene '{}', Tissue '{}' and Filter '{}'".format(gene_name, tissue, filters)
     prec_table_title = table_title
@@ -525,7 +608,7 @@ def multi_dd_values_handler(x_range, filters, gene_name, tissue, gencode_id):
             
             gene_name = gene_name[0]
             hidden1 = True        
-            fig_violin = multi_tissues_violin_plot(gencode_id, gene_name, tissue)
+            fig_violin, curr_data = multi_tissues_violin_plot(gencode_id, gene_name, tissue)
             fig_prec_violin = fig_violin 
             prec_xrange = [0, 1]
             ys = [fig_violin.data[i]["y"] for i in range(len(fig_violin.data))]
@@ -546,7 +629,7 @@ def multi_dd_values_handler(x_range, filters, gene_name, tissue, gencode_id):
         else:
 
             hidden1 = True
-            fig_violin = multi_genes_violin_plot(gencode_id, gene_name, tissue)
+            fig_violin, curr_data = multi_genes_violin_plot(gencode_id, gene_name, tissue)
             fig_prec_violin = fig_violin 
             prec_xrange = [0, 1]
             ys = [fig_violin.data[i]["y"] for i in range(len(fig_violin.data))]
@@ -618,8 +701,12 @@ def update_ppi_plot(method, n_clicks, gene_name):
                 else:
                     Gs.append(G)
 
-            final_G = nx.compose_all(Gs)
-        
+            if len(Gs)>=2:
+                final_G = nx.compose_all(Gs)
+            elif len(Gs) == 1:
+                final_G = Gs[0]
+            else: 
+                final_G = None
         elif isinstance(protein_name,str):
             protein_list = [protein_name]
             gencode_id = get_gencode_id_from_gene_name(gene_name)
@@ -728,6 +815,7 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
     global curr_violin
     global curr_fvalue_shapiro
     global curr_pvalue_shapiro
+    global curr_data 
 
     if isinstance(gene_name, str):
         gene_name = gene_name.replace("[", "").replace("]", "").split(",")
@@ -826,3 +914,4 @@ if __name__ == "__main__":
 
     app.run_server(debug=True, dev_tools_hot_reload=False, threaded = True)
 
+#Fix index and columns of returned dataframes 
