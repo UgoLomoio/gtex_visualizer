@@ -624,6 +624,7 @@ def multi_dd_values_handler(x_range, filters, gene_name, tissue, gencode_id):
             dict_data = df.to_dict('rows')         
             fig_pie = empty_figure("Pie plot doesn't support multiple tissues selection.", "red")
             fig_prec_pie = fig_pie
+            curr_violin = fig_violin
             return fig_violin, fig_pie, table_title, dict_data, hidden1
         
         else:
@@ -645,8 +646,9 @@ def multi_dd_values_handler(x_range, filters, gene_name, tissue, gencode_id):
             dict_data = df.to_dict('rows')         
             fig_pie = empty_figure("Pie plot doesn't support multiple tissues and genes selection.", "red") 
             fig_prec_pie = fig_pie
+            curr_violin = fig_violin
             return fig_violin, fig_pie, table_title, dict_data, hidden1
-    
+        
     else:
         return fig_prec_violin, fig_prec_pie, prec_table_title, prec_table, True #to change
 
