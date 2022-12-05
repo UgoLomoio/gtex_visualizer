@@ -249,7 +249,8 @@ app_dash_layout_args = [
                 html.Li(['Ugo Lomoio, Magna Graecia University of Catanzaro']),
                 html.Li(['Pietro Hiram Guzzi, Magna Graecia University of Catanzaro']),
                 html.Li(['Pierangelo Veltri, Magna Graecia University of Catanzaro']),
-                html.Li(html.A("About us", href="https://dsmc.unicz.it/homepage"))
+                html.Li(html.A("About us", href="https://dsmc.unicz.it/homepage")),
+                html.Li(html.A("User Guide", href="./assets/GTexVisualizer_User_Guide.pdf"))
             ]),
             ],
             className="footer",
