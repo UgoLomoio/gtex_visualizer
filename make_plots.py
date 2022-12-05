@@ -255,20 +255,21 @@ def plot_by_gene_tissue_age_and_gender(gencode_id, gene_name, tissue):
     ages = ["20-29", "30-39", "40-49", "50-59", "60-69", "70-79"]
     data_gender = {gender: [float(elem) for elem in list(df_gender['data'][df_gender['tissueSiteDetailId'] == tissue][df_gender['subsetGroup'] == gender].values[0])] for gender in genders}
     data_age = {age: [float(elem) for elem in list(df_age['data'][df_age['tissueSiteDetailId'] == tissue][df_age['subsetGroup'] == age].values[0])] for age in ages}
-    data_age_gender = {age: {gender: [float(elem1) for elem1 in data_gender[gender] for elem2 in data_age[age] if elem1 == elem2] for gender in genders} for age in ages}
+    data = {age: {gender: [float(elem1) for elem1 in data_gender[gender] for elem2 in data_age[age] if elem1 == elem2] for gender in genders} for age in ages}
     
     fig = go.FigureWidget()
     idx = 0
     colors = ["blue", "pink", "cyan", "violet", "green", "red", "orange", "purple", "yellow", "brown", "blue", "magenta"]
-    for i, (age, data_age) in enumerate(data_age_gender.items()):
+    for i, (age, data_age) in enumerate(data.items()):
         for j, (gender, data_age_gender) in enumerate(data_age.items()):
+
             fig.add_trace(go.Violin(x0 = tissue, y=data_age_gender, points='outliers', name=age+" "+gender, box_visible=True,  line_color='white', fillcolor = colors[idx], meanline_visible=True, opacity=0.8))
             idx += 1
     fig.update_xaxes(type='category')
     fig.update_layout(violinmode='group', hovermode='x unified', yaxis_title = "TPM", template="plotly_dark", title= "Violin plot of Gene {}, Tissue {} divided by Gender and Age".format(gene_name, tissue), autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(
                      visible=True)))
     # fig.update_yaxes(autorange = True,fixedrange = False)
-    return fig, pd.DataFrame.from_dict(data_age_gender, orient='index')
+    return fig, pd.DataFrame.from_dict(data, orient='index')
 
 
 #api for pie charts
