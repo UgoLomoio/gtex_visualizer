@@ -18,6 +18,17 @@ from make_plots import *
 import methods
 import scipy.stats as stats
 
+config = {
+        'responsive': True, 
+        'displayModeBar': True,
+        'toImageButtonOptions': {
+            'format': 'png', # one of png, svg, jpeg, webp
+            'height': 1080,
+            'width': 1920,
+            'scale': 6 # Multiply title/legend/axis/canvas sizes by this factor
+        }
+    }
+
 all_methods = ["None", "with_labels", "betweenness_centrality", "closeness_centrality", "degree_centrality", "eigenvector_centrality", "community_louvain", "community_leiden", "spectral_clustering"] # "community_girvan_newmann"
 all_tissues = ['All', 'Adipose_Subcutaneous', 'Adipose_Visceral_Omentum', 'Adrenal_Gland',
  'Artery_Aorta', 'Artery_Coronary', 'Artery_Tibial', 'Bladder',
@@ -156,7 +167,7 @@ app_dash_layout_args = [
                                                 animate=False,
                                                 style={"position": "absolute", "left": "0px", "top": "400px", 
                                                        'backgroundColor': bg, 'color': txt_color, 'width': "1500px", 'height': '800px'},
-                                                config = {'responsive': True, 'displayModeBar': True}
+                                                config = config
                                         )
                                    ),
                                    html.Div(
@@ -174,7 +185,7 @@ app_dash_layout_args = [
                                             figure=empty_figure(),
                                             animate=False,
                                             style={"position": "absolute", "left": "0px", "top": "1300px", 'backgroundColor': bg, 'color': txt_color, 'width': "800px", 'height': '800px'}, #
-                                            config = {'responsive': True, 'displayModeBar': True}
+                                            config = config
                                 )
 
                             )],
@@ -191,7 +202,7 @@ app_dash_layout_args = [
                                             figure=empty_figure(),
                                             animate=False,
                                             style={"position": "absolute", "left": "600px", "top": "1300px", 'backgroundColor': bg, 'color': txt_color, 'width': "900px", 'height': '800px'}, #
-                                            config = {'responsive': True, 'displayModeBar': True}
+                                            config = config
                                 )
 
                             )],
@@ -466,11 +477,11 @@ def single_dd_values_handler(x_range, filters, gene_name, tissue, gencode_id):
            
 
         print("Creating pie plots")
-        if tissue != prec_tissue:
+        #if tissue != prec_tissue:
             #fig_pie = plot_gene_data(gencode_id, gene_name)
-            fig_pie = empty_figure("Pie plots not implemented for tissue == All", "red")
-        else:
-            fig_pie = fig_prec_pie
+        fig_pie = empty_figure("Pie plots not implemented for tissue == All", "red")
+        #else:
+            #fig_pie = fig_prec_pie
             
         if gene_name != prec_gene:
             print("Changed gene {} -> {}".format(prec_gene, gene_name))
@@ -572,15 +583,17 @@ def single_dd_values_handler(x_range, filters, gene_name, tissue, gencode_id):
             if tissue != prec_tissue:
                 print("Changed tissue {} -> {}".format(prec_tissue, tissue))
                 prec_tissue = tissue 
-            fig_pie = plot_gene_tissue_data(gencode_id, gene_name, tissue) 
-            fig_prec_pie = fig_pie
+            #fig_pie = plot_gene_tissue_data(gencode_id, gene_name, tissue) 
+            #fig_prec_pie = fig_pie
             #print("Returing figures ", fig_violin, fig_pie)
-            return fig_violin, fig_pie, table_title, dict_data, hidden1
                     
-        else:
+        #else:
              
             #print("Returning figures ", fig_violin, fig_prec_pie)
-            return fig_violin, fig_prec_pie, table_title, dict_data, hidden1
+
+        fig_pie = plot_gene_tissue_data(gencode_id, gene_name, tissue) 
+        fig_prec_pie = fig_pie
+        return fig_violin, fig_pie, table_title, dict_data, hidden1
            
 
 def multi_dd_values_handler(x_range, filters, gene_name, tissue, gencode_id):
