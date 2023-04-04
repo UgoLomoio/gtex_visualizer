@@ -380,7 +380,7 @@ def single_dd_values_handler(x_range, filters, gene_name, tissue, gencode_id):
     global curr_pvalue_shapiro
     global curr_data
 
-    table_title = "Anova, Kruskal and Shapiro analysis results for: Gene '{}', Tissue '{}' and Filter '{}'".format(gene_name, tissue, filters)
+    table_title = "Anova, Kruskal and Shapiro analysis results for: Gene '{}', Tissue '{}' and Plot by '{}'".format(gene_name, tissue, filters)
     prec_table_title = table_title
     if tissue == "All":
                   
@@ -417,7 +417,7 @@ def single_dd_values_handler(x_range, filters, gene_name, tissue, gencode_id):
             df = pd.DataFrame([["Anova", fvalue_anova, pvalue_anova], ["Kruskal", fvalue_kruskal, pvalue_kruskal], ["Shapiro", fvalue_shapiro, pvalue_shapiro]], columns = ["", "f_value", "p_value"])
             dict_data = df.to_dict('rows')
 
-        elif filters == "Divide by Gender":
+        elif filters == "Group by Gender":
                         
             fig_violin, curr_data = plot_by_gene_and_gender(gencode_id, gene_name)
             hidden1 = False
@@ -517,7 +517,7 @@ def single_dd_values_handler(x_range, filters, gene_name, tissue, gencode_id):
             df = pd.DataFrame([["Anova", "None", "None"], ["Kruskal", "None", "None"], ["Shapiro", fvalue_shapiro, pvalue_shapiro]], columns = ["", "f_value", "p_value"])
             dict_data = df.to_dict('rows')            
             
-        elif filters == "Divide by Gender":
+        elif filters == "Group by Gender":
 
             fig_violin, curr_data = plot_by_gene_and_gender_and_tissue(gencode_id, gene_name, tissue)
             prec_xrange = [0, 1]
@@ -533,7 +533,7 @@ def single_dd_values_handler(x_range, filters, gene_name, tissue, gencode_id):
             df = pd.DataFrame([["Anova", fvalue_anova, pvalue_anova], ["Kruskal", fvalue_kruskal, pvalue_kruskal], ["Shapiro", curr_fvalue_shapiro, curr_pvalue_shapiro]], columns = ["", "f_value", "p_value"])
             dict_data = df.to_dict('rows')
             
-        elif filters == "Divide by Age":
+        elif filters == "Group by Age":
 
             fig_violin, curr_data = plot_by_gene_and_tissue_and_age(gencode_id, gene_name, tissue)
             prec_xrange = [0, 1]
@@ -549,7 +549,7 @@ def single_dd_values_handler(x_range, filters, gene_name, tissue, gencode_id):
             df = pd.DataFrame([["Anova", fvalue_anova, pvalue_anova], ["Kruskal", fvalue_kruskal, pvalue_kruskal], ["Shapiro", curr_fvalue_shapiro, curr_pvalue_shapiro]], columns = ["", "f_value", "p_value"])
             dict_data = df.to_dict('rows')
                         
-        else: #"Divide by Gender and Age"
+        else: #"Group by Gender and Age"
 
             fig_violin, curr_data = plot_by_gene_tissue_age_and_gender(gencode_id, gene_name, tissue)
             prec_xrange = [0, 1]
@@ -613,7 +613,7 @@ def multi_dd_values_handler(x_range, filters, gene_name, tissue, gencode_id):
     global curr_pvalue_shapiro
     global curr_data 
 
-    table_title = "Anova, Kruskal and Shapiro analysis results for: Gene '{}', Tissue '{}' and Filter '{}'".format(gene_name, tissue, filters)
+    table_title = "Anova, Kruskal and Shapiro analysis results for: Gene '{}', Tissue '{}' and Plot by '{}'".format(gene_name, tissue, filters)
     prec_table_title = table_title
 
     if filters == "No filters":
@@ -918,7 +918,7 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
         if prec_tissue == "All":
             if prec_filter == "No filters":
                 hidden1 = False
-            elif prec_filter == "Divide by Gender":
+            elif prec_filter == "Group by Gender":
                 hidden1 = False
             else: 
                 hidden1 = True

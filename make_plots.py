@@ -150,7 +150,7 @@ def plot_by_gene_and_gender_and_tissue(gencode_id, gene_name, tissue):
          fig.add_trace(go.Violin(x0 = tissue, y=data_tissue_gender, points='outliers', name = gender, box_visible=True,  line_color='white', fillcolor = colors[i], meanline_visible=True, opacity=0.8))
     
     fig.update_xaxes(type='category')
-    fig.update_layout(violinmode='group', hovermode='x unified', template="plotly_dark",  yaxis_title="TPM", title= "Violin plot of Gene {} and Tissue {} divided by gender".format(gene_name, tissue), autosize=False,
+    fig.update_layout(violinmode='group', hovermode='x unified', template="plotly_dark",  yaxis_title="TPM", title= "Violin plot of Gene {} and Tissue {} grouped by gender".format(gene_name, tissue), autosize=False,
     width=1500, height=800)
     return fig, pd.DataFrame.from_dict(data, orient='index')
 
@@ -170,7 +170,7 @@ def plot_by_gene_and_gender(gencode_id, gene_name):
                 fig.add_trace(go.Violin(x0 = tissue, y=data_tissue_gender, points='outliers', legendgroup=gender, scalegroup=gender, showlegend=False, box_visible=True,  line_color='white', fillcolor = colors[j], meanline_visible=True, opacity=0.8))
     
     fig.update_xaxes(type='category')
-    fig.update_layout(violinmode='group', hovermode='x unified', template="plotly_dark", yaxis_title="TPM", title= "Violin plot of Gene {} divided by Gender".format(gene_name), autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(
+    fig.update_layout(violinmode='group', hovermode='x unified', template="plotly_dark", yaxis_title="TPM", title= "Violin plot of Gene {} grouped by Gender".format(gene_name), autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(
                      visible=True)))
     fig.update_yaxes(autorange = True,fixedrange = False)
     return fig, pd.DataFrame.from_dict(data, orient='index')
@@ -195,7 +195,7 @@ def plot_by_gene_and_tissue_and_age(gencode_id, gene_name, tissue):
         #    fig.add_trace(go.Violin(x0 = tissue, y=data_tissue_age, points='outliers', legendgroup=age, scalegroup=age, showlegend=False, box_visible=True,  line_color='white', fillcolor = colors[j], meanline_visible=True, opacity=0.8))
     
     fig.update_xaxes(type='category')
-    fig.update_layout(violinmode='group', hovermode='x unified', template="plotly_dark",  yaxis_title="TPM",  title= "Violin plot of Gene {}, Tissue {} divided by age".format(gene_name, tissue), autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(
+    fig.update_layout(violinmode='group', hovermode='x unified', template="plotly_dark",  yaxis_title="TPM",  title= "Violin plot of Gene {}, Tissue {} grouped by age".format(gene_name, tissue), autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(
                      visible=True)))
     fig.update_yaxes(autorange = True,fixedrange = False)
     return fig, pd.DataFrame.from_dict(data, orient='index')
@@ -243,7 +243,7 @@ def plot_by_gene_and_gender_and_tissue_and_age(gencode_id, gene_name, tissue):
          fig.add_trace(go.Violin(x0 = tissue, y=data_tissue_gender, points='outliers', name = gender, box_visible=True,  line_color='white', fillcolor = colors[i], meanline_visible=True, opacity=0.8))
     
     fig.update_xaxes(type='category')
-    fig.update_layout(violinmode='group', hovermode='x unified', template="plotly_dark",  yaxis_title="TPM", title= "Violin plot of Gene {} and Tissue {} divided by gender".format(gene_name, tissue), autosize=False,
+    fig.update_layout(violinmode='group', hovermode='x unified', template="plotly_dark",  yaxis_title="TPM", title= "Violin plot of Gene {} and Tissue {} grouped by gender".format(gene_name, tissue), autosize=False,
     width=1500, height=800)
     return fig, pd.DataFrame.from_dict(data, orient='index')
 
@@ -266,7 +266,7 @@ def plot_by_gene_tissue_age_and_gender(gencode_id, gene_name, tissue):
             fig.add_trace(go.Violin(x0 = tissue, y=data_age_gender, points='outliers', name=age+" "+gender, box_visible=True,  line_color='white', fillcolor = colors[idx], meanline_visible=True, opacity=0.8))
             idx += 1
     fig.update_xaxes(type='category')
-    fig.update_layout(violinmode='group', hovermode='x unified', yaxis_title = "TPM", template="plotly_dark", title= "Violin plot of Gene {}, Tissue {} divided by Gender and Age".format(gene_name, tissue), autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(
+    fig.update_layout(violinmode='group', hovermode='x unified', yaxis_title = "TPM", template="plotly_dark", title= "Violin plot of Gene {}, Tissue {} grouped by Gender and Age".format(gene_name, tissue), autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(
                      visible=True)))
     # fig.update_yaxes(autorange = True,fixedrange = False)
     return fig, pd.DataFrame.from_dict(data, orient='index')
