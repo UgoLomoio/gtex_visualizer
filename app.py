@@ -56,7 +56,7 @@ with open('all_genes_dict.txt', 'r') as f:
 with open("ENSG_to_ENSP.txt", "r") as f:
     ensembl_gene_protein_mapping = dict(eval(f.read()))
 
-all_filters = ["No filters", "Divide by Gender", "Divide by Age", "Divide by Gender and Age"]
+all_filters = ["No filters", "Group by Gender", "Group by Age", "Group by Gender and Age"]
 all_ages = ["20-29", "30-39", "40-49", "50-59", "60-69", "70-79"]
 all_genders = ["male", "female"]
 max_n_clicks = 0
@@ -104,11 +104,11 @@ curr_pvalue_shapiro = "None"
 
 app = Dash(__name__)          #create the dash app fist 
 server = app.server
-app.title = "GTexVisual"
+app.title = "GTexVisualizer "
 
 app_dash_layout_args = [
             
-        html.H1("GTexVisual: A platform for Ageing studies",  
+        html.H1("GTexVisualizer: a platform for ageing studies",  
                     style={'backgroundColor': bg, 'color': 'orange'}
         ),
 
@@ -135,7 +135,7 @@ app_dash_layout_args = [
         html.Div(
                 
                     children = [
-                        html.Label("Select a filter: ", style={'backgroundColor': bg, 'color': txt_color}),
+                        html.Label("Plot by: ", style={'backgroundColor': bg, 'color': txt_color}),
                         dcc.Dropdown(all_filters, all_filters[0], id='filters_dd', style={'color': 'black', 'border': '3px solid #ff7300'})
                     ],
                     style={'width': '100%', 'display': 'inline-block'}
@@ -215,10 +215,10 @@ app_dash_layout_args = [
         html.Div(
                 
                     children = [
-                        html.Label("Select a method to apply: ", style={'backgroundColor': bg, 'color': txt_color}),
+                        html.Label("Select a method for graph analysis and visualization: ", style={'backgroundColor': bg, 'color': txt_color}),
                         dcc.Dropdown(all_methods, all_methods[0], id='methods_dd', style={'color': 'black', 'border': '3px solid #ff7300'})
                     ],
-                    style={'width': '400px', 'display': 'inline-block', "position": "absolute", "left": "800px", "top": "1200px" }
+                    style={'width': '500px', 'display': 'inline-block', "position": "absolute", "left": "800px", "top": "1200px" }
         ),
         html.Button(
                     "Update Plots",
@@ -251,7 +251,7 @@ app_dash_layout_args = [
                                      style_data={'backgroundColor': 'rgb(50, 50, 50)', 'color': 'white'})
             ],  
             style={"position": "absolute", "left": "0px", "top": "2100px", 
-                                            'backgroundColor': bg, 'color': txt_color, 'width': '400px', 'height': '200px'}
+                                            'backgroundColor': bg, 'color': txt_color, 'width': '1300px', 'height': '200px', 'display': 'inline-block'}
         ),
 
         html.Div([
@@ -259,8 +259,8 @@ app_dash_layout_args = [
             html.Ul([
                 html.Li(['Ugo Lomoio, Magna Graecia University of Catanzaro']),
                 html.Li(['Pietro Hiram Guzzi, Magna Graecia University of Catanzaro']),
-                html.Li(['Pierangelo Veltri, Magna Graecia University of Catanzaro']),
-                html.Li(html.A("About us", href="https://dsmc.unicz.it/homepage")),
+                html.Li(['Pierangelo Veltri, University of Calabria']),
+                html.Li(["Contact us: hguzzi@unicz.it"]),
                 html.Li(html.A("User Guide", href="./assets/GTexVisualizer_User_Guide.pdf"))
             ]),
             ],
