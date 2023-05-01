@@ -49,6 +49,9 @@ all_tissues = ['All', 'Adipose_Subcutaneous', 'Adipose_Visceral_Omentum', 'Adren
  'Skin_Sun_Exposed_Lower_leg', 'Small_Intestine_Terminal_Ileum', 'Spleen',
  'Stomach', 'Testis', 'Thyroid', 'Uterus', 'Vagina', 'Whole_Blood']
 
+#template = "plotly_dark"
+template = "plotly_white"
+
 with open('all_genes_dict.txt', 'r') as f:
     data = f.readline()
     all_genes_dict = dict(eval(str(data)))
@@ -63,10 +66,10 @@ max_n_clicks = 0
 bg = "white" #'rgb(17, 17, 17)'
 txt_color = "black"
 
-def empty_figure(title = "Fill Dropdown menus and press the Update Plot Button", color = "white"):
+def empty_figure(title = "Fill Dropdown menus and press the Update Plot Button", color = "black"):
 
     fig = go.FigureWidget()
-    fig.update_layout(template="plotly_dark", title=title, title_font_color=color)
+    fig.update_layout(template=template, title=title, title_font_color=color)
     return fig
 
 def get_current_y_range(x_range, y_all):
@@ -741,7 +744,14 @@ def update_ppi_plot(method, n_clicks, gene_name):
         if final_G is not None:#TO DO: check if method  != None 
             node_colors = {node: ("green" if node in protein_list else "blue") for node in final_G.nodes}
             nx.set_node_attributes(final_G, node_colors, "color")
-            fig_ppi = visualize_network(final_G, color_by = 'color', size_by = 'color', title = "{} protein - protein interaction networkx".format(gene_name), layout = "spring_layout")
+            if isinstance(gene_name, list):
+                if len(gene_name) == 1:
+                    temp_gene_name = gene_name[0]
+                else:
+                    temp_gene_name = gene_name
+
+            fig_ppi = visualize_network(final_G, color_by = 'color', size_by = 'color', title = "{} Protein - Protein Interaction Network".format(temp_gene_name), layout = "spring_layout")
+                         
             href = get_url_string(gene_name)
 
         else:
@@ -763,7 +773,11 @@ def update_ppi_plot(method, n_clicks, gene_name):
                
                 if method == "with_labels":
 
-                    fig_ppi = visualize_network(curr_G, color_by = 'color', size_by = 'color', title = prec_title + " with method {} ".format(method),layout = "spring_layout", with_labels = True)
+                    if len(gene_name) == 1:
+                        temp_gene_name = gene_name[0]
+                    else:
+                        temp_gene_name = gene_name
+                    fig_ppi = visualize_network(curr_G, color_by = 'color', size_by = 'color', title = "{} Protein - Protein Interaction Network".format(temp_gene_name), layout = "spring_layout", with_labels = True)
                     fig_prec_ppi = fig_ppi
                     return fig_ppi, prec_href, prec_href_gene
                 

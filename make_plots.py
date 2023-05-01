@@ -18,6 +18,11 @@ import random
 """
 GTex API requests https://www.gtexportal.org/home/api-docs/
 """
+# template = plotly_dark
+template = "plotly_white"
+line_color = "black"
+#line_color = "white"
+
 colors = ['aliceblue', 'antiquewhite', 'aqua', 'aquamarine', 'azure',
                 'beige', 'bisque', 'blanchedalmond', 'blue',
                 'blueviolet', 'brown', 'burlywood', 'cadetblue',
@@ -147,11 +152,13 @@ def plot_by_gene_and_gender_and_tissue(gencode_id, gene_name, tissue):
     data = {gender: [float(elem) for elem in list(df['data'][df['tissueSiteDetailId'] == tissue][df['subsetGroup'] == gender].values[0])] for gender in genders}
     colors = ["cyan", "pink"]
     for i, (gender, data_tissue_gender) in enumerate(data.items()):
-         fig.add_trace(go.Violin(x0 = tissue, y=data_tissue_gender, points='outliers', name = gender, box_visible=True,  line_color='white', fillcolor = colors[i], meanline_visible=True, opacity=0.8))
+         fig.add_trace(go.Violin(x0 = tissue, y=data_tissue_gender, points='outliers', name = gender, box_visible=True,  line_color=line_color, fillcolor = colors[i], meanline_visible=True, opacity=0.8))
     
     fig.update_xaxes(type='category')
-    fig.update_layout(violinmode='group', hovermode='x unified', template="plotly_dark",  yaxis_title="TPM", title= "Violin plot of Gene {} and Tissue {} grouped by gender".format(gene_name, tissue), autosize=False,
-    width=1500, height=800)
+    fig.update_layout(violinmode='group', hovermode='x unified', template=template,  yaxis_title="TPM", title= "Violin plot of Gene {} and Tissue {} grouped by gender".format(gene_name, tissue), titlefont_size=24, autosize=False,
+    width=1500, height=800, legend=dict(font=dict(size= 24)))
+    fig.update_yaxes(title = dict(font=dict(size= 24)))
+    fig.update_xaxes(title = dict(font=dict(size= 24)))
     return fig, pd.DataFrame.from_dict(data, orient='index')
 
 def plot_by_gene_and_gender(gencode_id, gene_name):
@@ -165,14 +172,15 @@ def plot_by_gene_and_gender(gencode_id, gene_name):
     for i, (tissue, data_tissue) in enumerate(data.items()):
         for j, (gender, data_tissue_gender) in enumerate(data_tissue.items()):
             if i == 0:
-                fig.add_trace(go.Violin(x0 = tissue, y=data_tissue_gender, points='outliers', legendgroup=gender, scalegroup=gender, name=gender, box_visible=True,  line_color='white', fillcolor = colors[j], meanline_visible=True, opacity=0.8))
+                fig.add_trace(go.Violin(x0 = tissue, y=data_tissue_gender, points='outliers', legendgroup=gender, scalegroup=gender, name=gender, box_visible=True,  line_color=line_color, fillcolor = colors[j], meanline_visible=True, opacity=0.8))
             else:
-                fig.add_trace(go.Violin(x0 = tissue, y=data_tissue_gender, points='outliers', legendgroup=gender, scalegroup=gender, showlegend=False, box_visible=True,  line_color='white', fillcolor = colors[j], meanline_visible=True, opacity=0.8))
+                fig.add_trace(go.Violin(x0 = tissue, y=data_tissue_gender, points='outliers', legendgroup=gender, scalegroup=gender, showlegend=False, box_visible=True,  line_color=line_color, fillcolor = colors[j], meanline_visible=True, opacity=0.8))
     
     fig.update_xaxes(type='category')
-    fig.update_layout(violinmode='group', hovermode='x unified', template="plotly_dark", yaxis_title="TPM", title= "Violin plot of Gene {} grouped by Gender".format(gene_name), autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(
+    fig.update_layout(violinmode='group', hovermode='x unified', template=template, yaxis_title="TPM", title= "Violin plot of Gene {} grouped by Gender".format(gene_name), titlefont_size=24, autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(
                      visible=True)))
-    fig.update_yaxes(autorange = True,fixedrange = False)
+
+    fig.update_yaxes(autorange = True,fixedrange = False, title = dict(font=dict(size= 24)))
     return fig, pd.DataFrame.from_dict(data, orient='index')
 
 
@@ -190,14 +198,14 @@ def plot_by_gene_and_tissue_and_age(gencode_id, gene_name, tissue):
         #for j, (age, data_tissue_age) in enumerate(data_tissue.items()):
     for j, (age, data_tissue_age) in enumerate(data.items()):
         #if i == 0:
-        fig.add_trace(go.Violin(x0 = tissue, y=data_tissue_age, points='outliers', legendgroup=age, scalegroup=age, name=age, box_visible=True,  line_color='white', fillcolor = colors[j], meanline_visible=True, opacity=0.8))
+        fig.add_trace(go.Violin(x0 = tissue, y=data_tissue_age, points='outliers', legendgroup=age, scalegroup=age, name=age, box_visible=True,  line_color=line_color, fillcolor = colors[j], meanline_visible=True, opacity=0.8))
         #else:
-        #    fig.add_trace(go.Violin(x0 = tissue, y=data_tissue_age, points='outliers', legendgroup=age, scalegroup=age, showlegend=False, box_visible=True,  line_color='white', fillcolor = colors[j], meanline_visible=True, opacity=0.8))
+        #    fig.add_trace(go.Violin(x0 = tissue, y=data_tissue_age, points='outliers', legendgroup=age, scalegroup=age, showlegend=False, box_visible=True,  line_color=line_color, fillcolor = colors[j], meanline_visible=True, opacity=0.8))
     
-    fig.update_xaxes(type='category')
-    fig.update_layout(violinmode='group', hovermode='x unified', template="plotly_dark",  yaxis_title="TPM",  title= "Violin plot of Gene {}, Tissue {} grouped by age".format(gene_name, tissue), autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(
-                     visible=True)))
-    fig.update_yaxes(autorange = True,fixedrange = False)
+    fig.update_xaxes(type='category', title = dict(font=dict(size= 24)))
+    fig.update_layout(violinmode='group', hovermode='x unified', template=template,  yaxis_title="TPM", title= "Violin plot of Gene {}, Tissue {} grouped by age".format(gene_name, tissue), titlefont_size=24, autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(visible=True)), legend=dict(font=dict(size= 20)))
+                                                                                                                                                                                                                                                                         
+    fig.update_yaxes(autorange = True,fixedrange = False, title = dict(font=dict(size= 24)))
     return fig, pd.DataFrame.from_dict(data, orient='index')
 
 def plot_by_gene(gencode_id, gene_name):
@@ -213,12 +221,12 @@ def plot_by_gene(gencode_id, gene_name):
             if color not in selected_colors:
                 selected_colors.append(color)
                 break
-        fig.add_trace(go.Violin(x0 = tissue, y=tissue_data, points='outliers', name = tissue, box_visible=True,  line_color='white', fillcolor = color, meanline_visible=True, opacity=0.8))
+        fig.add_trace(go.Violin(x0 = tissue, y=tissue_data, points='outliers', name = tissue, box_visible=True,  line_color=line_color, fillcolor = color, meanline_visible=True, opacity=0.8))
     
     fig.update_xaxes(type='category')
-    fig.update_layout(template="plotly_dark", hovermode='x unified', yaxis_title="TPM", title= "Violin plot of Gene {}".format(gene_name), autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(
+    fig.update_layout(template=template, hovermode='x unified', yaxis_title="TPM", title= "Violin plot of Gene {}".format(gene_name), titlefont_size=24, autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(
                      visible=True)))
-
+    fig.update_yaxes(title = dict(font=dict(size= 24)))
     return fig, pd.DataFrame.from_dict(data, orient='index')
 
 def plot_by_gene_and_tissue(gene, gene_name, tissue):
@@ -226,8 +234,9 @@ def plot_by_gene_and_tissue(gene, gene_name, tissue):
     df = request_api_gene_expression(gene)
     fig = go.FigureWidget()
     data = [float(elem) for elem in list(df['data'][df['tissueSiteDetailId'] == tissue].values[0])]
-    fig.add_trace(go.Violin(x0=tissue, y=data, name=tissue, box_visible=True, line_color='white', meanline_visible=True, fillcolor='lightseagreen', points="outliers", opacity=0.8))
-    fig.update_layout(template="plotly_dark", hovermode='x unified', yaxis_title="TPM", title= "Violin plot of Gene {} and Tissue {}".format(gene_name, tissue))
+    fig.add_trace(go.Violin(x0=tissue, y=data, name=tissue, box_visible=True, line_color=line_color, meanline_visible=True, fillcolor='lightseagreen', points="outliers", opacity=0.8))
+    fig.update_layout(template=template, hovermode='x unified', yaxis_title="TPM", title= "Violin plot of Gene {} and Tissue {}".format(gene_name, tissue), titlefont_size=24, )
+    fig.update_yaxes(title = dict(font=dict(size= 20)))
     return fig, pd.DataFrame.from_dict(data)
 
 
@@ -240,11 +249,13 @@ def plot_by_gene_and_gender_and_tissue_and_age(gencode_id, gene_name, tissue):
     data = {gender: {age: [float(elem) for elem in list(df['data'][df['tissueSiteDetailId'] == tissue][df['subsetGroup'] == gender][df['ageBracket'] == age].values[0])] for age in ages} for gender in genders}
     colors = ["cyan", "pink"]
     for i, (gender, data_tissue_gender) in enumerate(data.items()):
-         fig.add_trace(go.Violin(x0 = tissue, y=data_tissue_gender, points='outliers', name = gender, box_visible=True,  line_color='white', fillcolor = colors[i], meanline_visible=True, opacity=0.8))
+         fig.add_trace(go.Violin(x0 = tissue, y=data_tissue_gender, points='outliers', name = gender, box_visible=True,  line_color=line_color, fillcolor = colors[i], meanline_visible=True, opacity=0.8))
     
     fig.update_xaxes(type='category')
-    fig.update_layout(violinmode='group', hovermode='x unified', template="plotly_dark",  yaxis_title="TPM", title= "Violin plot of Gene {} and Tissue {} grouped by gender".format(gene_name, tissue), autosize=False,
-    width=1500, height=800)
+    fig.update_layout(violinmode='group', hovermode='x unified', template=template,  yaxis_title="TPM", title= "Violin plot of Gene {} and Tissue {} grouped by gender".format(gene_name, tissue), autosize=False,
+    width=1500, height=800, legend=dict(font=dict(size= 24)), titlefont_size=24)
+    fig.update_yaxes(title = dict(font=dict(size= 24)))
+    fig.update_xaxes(title = dict(font=dict(size= 24)))
     return fig, pd.DataFrame.from_dict(data, orient='index')
 
 def plot_by_gene_tissue_age_and_gender(gencode_id, gene_name, tissue):
@@ -263,12 +274,14 @@ def plot_by_gene_tissue_age_and_gender(gencode_id, gene_name, tissue):
     for i, (age, data_age) in enumerate(data.items()):
         for j, (gender, data_age_gender) in enumerate(data_age.items()):
 
-            fig.add_trace(go.Violin(x0 = tissue, y=data_age_gender, points='outliers', name=age+" "+gender, box_visible=True,  line_color='white', fillcolor = colors[idx], meanline_visible=True, opacity=0.8))
+            fig.add_trace(go.Violin(x0 = tissue, y=data_age_gender, points='outliers', name=age+" "+gender, box_visible=True,  line_color=line_color, fillcolor = colors[idx], meanline_visible=True, opacity=0.8))
             idx += 1
     fig.update_xaxes(type='category')
-    fig.update_layout(violinmode='group', hovermode='x unified', yaxis_title = "TPM", template="plotly_dark", title= "Violin plot of Gene {}, Tissue {} grouped by Gender and Age".format(gene_name, tissue), autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(
-                     visible=True)))
+    fig.update_layout(violinmode='group', hovermode='x unified', yaxis_title = "TPM", template=template, title= "Violin plot of Gene {}, Tissue {} grouped by Gender and Age".format(gene_name, tissue),  titlefont_size=24, autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(
+                     visible=True)), legend=dict(font=dict(size= 24)))
     # fig.update_yaxes(autorange = True,fixedrange = False)
+    fig.update_yaxes(title = dict(font=dict(size= 24)))
+    fig.update_xaxes(title = dict(font=dict(size= 24)))
     return fig, pd.DataFrame.from_dict(data, orient='index')
 
 
@@ -349,7 +362,7 @@ def plot_gene_tissue_data(gene, gene_name, tissue):
     fig.add_trace(go.Pie(labels=list(data_deaths.keys()), values= list(data_deaths.values()), marker_colors=deaths_colors, name="Deaths"),
                   2, 2)
     fig.update_traces(hoverinfo='label+percent', textinfo = 'label')
-    fig.update_layout(template="plotly_dark", hovermode='x unified', title= "Pie charts for Gene {} and Tissue {}".format(gene_name, tissue), autosize=False, width=600, height=800, xaxis =  {                                     
+    fig.update_layout(template=template, hovermode='x unified', title= "Pie charts for Gene {} and Tissue {}".format(gene_name, tissue), autosize=False, width=600, height=800, xaxis =  {                                     
                       'showgrid': False}, yaxis = {'showgrid': True}, showlegend=False)    
     return fig
 
@@ -386,7 +399,7 @@ def plot_gene_data(gene, gene_name):
     fig.add_trace(go.Pie(labels=list(data_tissues.keys()), values= list(data_tissues.values()), marker_colors=colors, name="Tissues"),
                   3, 1)
     fig.update_traces(hoverinfo='label+percent', textinfo = 'label')
-    fig.update_layout(template="plotly_dark", hovermode='x unified', title= "Pie charts for Gene {} and all tissues".format(gene_name), autosize=False, width=600, height=800, xaxis =  {                                     
+    fig.update_layout(template=template, hovermode='x unified', title= "Pie charts for Gene {} and all tissues".format(gene_name), autosize=False, width=600, height=800, xaxis =  {                                     
                       'showgrid': False}, yaxis = {'showgrid': True}, showlegend=False)    
     return fig
 
@@ -453,7 +466,7 @@ def visualize_network(G, color_by = None, size_by = None, title = None, layout =
 
     edge_trace = go.Scatter(
                                   x=edge_x, y=edge_y,
-                                  line=dict(width=0.5, color='white'),
+                                  line=dict(width=0.5, color=line_color),
                                   hoverinfo='text',
                                   text=edge_text,
                                   mode='lines'
@@ -468,9 +481,9 @@ def visualize_network(G, color_by = None, size_by = None, title = None, layout =
     
     node_trace = go.Scatter(
                                x=node_x, y=node_y,
-                                mode= "markers",
-                                hoverinfo="name+text",
-                                marker = dict(
+                               mode= "markers",
+                               hoverinfo="name+text",
+                               marker = dict(
                                   showscale=True,
                                   #colorscale options
                                   #'Greys' | 'YlGnBu' | 'Greens' | 'YlOrRd' | 'Bluered' | 'RdBu' |
@@ -479,7 +492,7 @@ def visualize_network(G, color_by = None, size_by = None, title = None, layout =
                                   colorscale='Blues',
                                   reversescale=True,
                                   color=[],
-                                  size=10,
+                                  size=14,
                                   colorbar=dict(
                                     thickness=15,
                                     title=color_by,
@@ -503,7 +516,7 @@ def visualize_network(G, color_by = None, size_by = None, title = None, layout =
             if size_by is not None:
                 size = value*size_scale
             else: 
-                size = 10
+                size = 14
             node_size.append(size)
         node_trace.marker.color = node_color
         if size_by is not None:
@@ -519,7 +532,7 @@ def visualize_network(G, color_by = None, size_by = None, title = None, layout =
                     text=node[0], # node name that will be displayed
                     xanchor='left',
                     xshift=10,
-                    font=dict(color='white', size=12),
+                    font=dict(color=line_color, size=14),
                     showarrow=False, arrowhead=1, ax=-10, ay=-10
                 )
             )
@@ -532,17 +545,17 @@ def visualize_network(G, color_by = None, size_by = None, title = None, layout =
         nodes_text.append(node_text)
     node_trace.text = nodes_text
 
-    print(annotations)
+    #print(annotations)
     fig = go.Figure(data=[edge_trace, node_trace],
                       layout=go.Layout(
                       title=title,
-                      titlefont_size=16,
+                      titlefont_size=24,
                       showlegend= False,
                       hovermode='closest',
                       margin=dict(b=20,l=5,r=5,t=40),
                       xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
                       yaxis=dict(showgrid=False, zeroline=False, showticklabels=False), 
-                      template="plotly_dark",
+                      template=template,
                       autosize=False, 
                       width=900, 
                       height=800,
@@ -604,7 +617,7 @@ def get_url_string(protein_name):
 
         "identifiers" : protein_name, # your protein
         "species" : 9606, # species NCBI identifier for HUMAN proteins
-         "caller_identity" : "gtex_visualizer" 
+        "caller_identity" : "gtex_visualizer" 
 
     }
 
@@ -629,8 +642,8 @@ def multi_tissues_violin_plot(gene, gene_name, tissues):
                     selected_colors.append(color)
                     break
             data = [float(elem) for elem in list(df['data'][df['tissueSiteDetailId'] == tissue].values[0])]
-            fig.add_trace(go.Violin(x0=tissue, y=data, name=tissue, box_visible=True, line_color='white', meanline_visible=True, fillcolor=color, points="outliers", opacity=0.8))
-    fig.update_layout(template="plotly_dark", hovermode='x unified', yaxis_title="TPM", title= "Violin plot of Gene {} and First {} Tissues selected".format(gene_name, limit), autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(
+            fig.add_trace(go.Violin(x0=tissue, y=data, name=tissue, box_visible=True, line_color=line_color, meanline_visible=True, fillcolor=color, points="outliers", opacity=0.8))
+    fig.update_layout(template=template, hovermode='x unified', yaxis_title="TPM", title= "Violin plot of Gene {} and First {} Tissues selected".format(gene_name, limit), autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(
                      visible=True)))
     return fig, pd.DataFrame.from_dict({tissue: list(df['data'][df['tissueSiteDetailId'] == tissue].values[0]) for tissue in unique_tissues[:limit]}, orient='index')
 
@@ -668,7 +681,7 @@ def multi_genes_violin_plot(genes, genes_name, tissues):
                         selected_colors.append(color)
                     break
                 data = [float(elem) for elem in list(dfs[gene]['data'][dfs[gene]['tissueSiteDetailId'] == tissue].values[0])]
-                fig.add_trace(go.Violin(x0=tissue, y=data, name="{}_{}".format(gene_name, tissue), box_visible=True, line_color='white', meanline_visible=True, fillcolor=color, points="outliers", opacity=0.8))
-    fig.update_layout(violinmode='group', hovermode='x unified', template="plotly_dark", yaxis_title="TPM", title= "Violin plot of First {} Genes and First {} Tissues selected".format(limit_g, limit_t), autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(
+                fig.add_trace(go.Violin(x0=tissue, y=data, name="{}_{}".format(gene_name, tissue), box_visible=True, line_color=line_color, meanline_visible=True, fillcolor=color, points="outliers", opacity=0.8))
+    fig.update_layout(violinmode='group', hovermode='x unified', template=template, yaxis_title="TPM", title= "Violin plot of First {} Genes and First {} Tissues selected".format(limit_g, limit_t), autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(
                      visible=True)))
     return fig, pd.DataFrame.from_dict({gene: {tissue: list(dfs[gene]['data'][dfs[gene]['tissueSiteDetailId'] == tissue].values[0]) for tissue in unique_tissues[:limit_t]} for gene in unique_genes[:limit_g]}, orient='index')
