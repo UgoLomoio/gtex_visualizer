@@ -156,7 +156,7 @@ def plot_by_gene_and_gender_and_tissue(gencode_id, gene_name, tissue):
     
     fig.update_xaxes(type='category')
     fig.update_layout(violinmode='group', hovermode='x unified', template=template,  yaxis_title="TPM", title= "Violin plot of Gene {} and Tissue {} grouped by gender".format(gene_name, tissue), titlefont_size=24, autosize=False,
-    width=1500, height=800, legend=dict(font=dict(size= 24)))
+    width=1500, height=800, legend=dict(font=dict(size= 24)), title_font_color = line_color, font_color = line_color)
     fig.update_yaxes(title = dict(font=dict(size= 24)))
     fig.update_xaxes(title = dict(font=dict(size= 24)))
     return fig, pd.DataFrame.from_dict(data, orient='index')
@@ -178,7 +178,7 @@ def plot_by_gene_and_gender(gencode_id, gene_name):
     
     fig.update_xaxes(type='category')
     fig.update_layout(violinmode='group', hovermode='x unified', template=template, yaxis_title="TPM", title= "Violin plot of Gene {} grouped by Gender".format(gene_name), titlefont_size=24, autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(
-                     visible=True)))
+                     visible=True)), title_font_color = line_color, font_color = line_color)
 
     fig.update_yaxes(autorange = True,fixedrange = False, title = dict(font=dict(size= 24)))
     return fig, pd.DataFrame.from_dict(data, orient='index')
@@ -203,7 +203,7 @@ def plot_by_gene_and_tissue_and_age(gencode_id, gene_name, tissue):
         #    fig.add_trace(go.Violin(x0 = tissue, y=data_tissue_age, points='outliers', legendgroup=age, scalegroup=age, showlegend=False, box_visible=True,  line_color=line_color, fillcolor = colors[j], meanline_visible=True, opacity=0.8))
     
     fig.update_xaxes(type='category', title = dict(font=dict(size= 24)))
-    fig.update_layout(violinmode='group', hovermode='x unified', template=template,  yaxis_title="TPM", title= "Violin plot of Gene {}, Tissue {} grouped by age".format(gene_name, tissue), titlefont_size=24, autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(visible=True)), legend=dict(font=dict(size= 20)))
+    fig.update_layout(violinmode='group', hovermode='x unified', template=template,  yaxis_title="TPM", title= "Violin plot of Gene {}, Tissue {} grouped by age".format(gene_name, tissue), titlefont_size=24, autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(visible=True)), legend=dict(font=dict(size= 20)), title_font_color = line_color, font_color = line_color)
                                                                                                                                                                                                                                                                          
     fig.update_yaxes(autorange = True,fixedrange = False, title = dict(font=dict(size= 24)))
     return fig, pd.DataFrame.from_dict(data, orient='index')
@@ -225,7 +225,7 @@ def plot_by_gene(gencode_id, gene_name):
     
     fig.update_xaxes(type='category')
     fig.update_layout(template=template, hovermode='x unified', yaxis_title="TPM", title= "Violin plot of Gene {}".format(gene_name), titlefont_size=24, autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(
-                     visible=True)))
+                     visible=True)), title_font_color = line_color, font_color = line_color)
     fig.update_yaxes(title = dict(font=dict(size= 24)))
     return fig, pd.DataFrame.from_dict(data, orient='index')
 
@@ -235,8 +235,8 @@ def plot_by_gene_and_tissue(gene, gene_name, tissue):
     fig = go.FigureWidget()
     data = [float(elem) for elem in list(df['data'][df['tissueSiteDetailId'] == tissue].values[0])]
     fig.add_trace(go.Violin(x0=tissue, y=data, name=tissue, box_visible=True, line_color=line_color, meanline_visible=True, fillcolor='lightseagreen', points="outliers", opacity=0.8))
-    fig.update_layout(template=template, hovermode='x unified', yaxis_title="TPM", title= "Violin plot of Gene {} and Tissue {}".format(gene_name, tissue), titlefont_size=24, )
-    fig.update_yaxes(title = dict(font=dict(size= 20)))
+    fig.update_layout(template=template, hovermode='x unified', yaxis_title="TPM", title= "Violin plot of Gene {} and Tissue {}".format(gene_name, tissue), titlefont_size=24, title_font_color = line_color, font_color = line_color)
+    fig.update_yaxes(title = dict(font=dict(size= 20)), title_font_color = line_color, font_color = line_color)
     return fig, pd.DataFrame.from_dict(data)
 
 
@@ -253,7 +253,7 @@ def plot_by_gene_and_gender_and_tissue_and_age(gencode_id, gene_name, tissue):
     
     fig.update_xaxes(type='category')
     fig.update_layout(violinmode='group', hovermode='x unified', template=template,  yaxis_title="TPM", title= "Violin plot of Gene {} and Tissue {} grouped by gender".format(gene_name, tissue), autosize=False,
-    width=1500, height=800, legend=dict(font=dict(size= 24)), titlefont_size=24)
+    width=1500, height=800, legend=dict(font=dict(size= 24)), titlefont_size=24, title_font_color = line_color, font_color = line_color)
     fig.update_yaxes(title = dict(font=dict(size= 24)))
     fig.update_xaxes(title = dict(font=dict(size= 24)))
     return fig, pd.DataFrame.from_dict(data, orient='index')
@@ -278,7 +278,7 @@ def plot_by_gene_tissue_age_and_gender(gencode_id, gene_name, tissue):
             idx += 1
     fig.update_xaxes(type='category')
     fig.update_layout(violinmode='group', hovermode='x unified', yaxis_title = "TPM", template=template, title= "Violin plot of Gene {}, Tissue {} grouped by Gender and Age".format(gene_name, tissue),  titlefont_size=24, autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(
-                     visible=True)), legend=dict(font=dict(size= 24)))
+                     visible=True)), legend=dict(font=dict(size= 24)), title_font_color = line_color, font_color = line_color)
     # fig.update_yaxes(autorange = True,fixedrange = False)
     fig.update_yaxes(title = dict(font=dict(size= 24)))
     fig.update_xaxes(title = dict(font=dict(size= 24)))
@@ -363,7 +363,7 @@ def plot_gene_tissue_data(gene, gene_name, tissue):
                   2, 2)
     fig.update_traces(hoverinfo='label+percent', textinfo = 'label')
     fig.update_layout(template=template, hovermode='x unified', title= "Pie charts for Gene {} and Tissue {}".format(gene_name, tissue), autosize=False, width=600, height=800, xaxis =  {                                     
-                      'showgrid': False}, yaxis = {'showgrid': True}, showlegend=False)    
+                      'showgrid': False}, yaxis = {'showgrid': True}, showlegend=False, title_font_color = line_color, font_color = line_color)    
     return fig
 
 def plot_gene_data(gene, gene_name):
@@ -400,7 +400,7 @@ def plot_gene_data(gene, gene_name):
                   3, 1)
     fig.update_traces(hoverinfo='label+percent', textinfo = 'label')
     fig.update_layout(template=template, hovermode='x unified', title= "Pie charts for Gene {} and all tissues".format(gene_name), autosize=False, width=600, height=800, xaxis =  {                                     
-                      'showgrid': False}, yaxis = {'showgrid': True}, showlegend=False)    
+                      'showgrid': False}, yaxis = {'showgrid': True}, showlegend=False, title_font_color = line_color, font_color = line_color)    
     return fig
 
 #PPI plot
@@ -466,7 +466,7 @@ def visualize_network(G, color_by = None, size_by = None, title = None, layout =
 
     edge_trace = go.Scatter(
                                   x=edge_x, y=edge_y,
-                                  line=dict(width=0.5, color=line_color),
+                                  line=dict(width=1.0, color=line_color), #0.5
                                   hoverinfo='text',
                                   text=edge_text,
                                   mode='lines'
@@ -479,18 +479,23 @@ def visualize_network(G, color_by = None, size_by = None, title = None, layout =
         node_x.append(x)
         node_y.append(y)
     
-    node_trace = go.Scatter(
-                               x=node_x, y=node_y,
-                               mode= "markers",
-                               hoverinfo="name+text",
-                               marker = dict(
-                                  showscale=True,
+    if color_by == "color": #WITH LABELS OR NONE METHODS
+        showscale = False
+        marker = dict(
+                                  showscale=showscale,
+                                  color=[],
+                                  size=14
+                     )
+    else:
+        showscale = True
+        marker = dict(
+                                  showscale=showscale,
                                   #colorscale options
                                   #'Greys' | 'YlGnBu' | 'Greens' | 'YlOrRd' | 'Bluered' | 'RdBu' |
                                   #'Reds' | 'Blues' | 'Picnic' | 'Rainbow' | 'Portland' | 'Jet' |
                                   #'Hot' | 'Blackbody' | 'Earth' | 'Electric' | 'Viridis' |
-                                  colorscale='Blues',
-                                  reversescale=True,
+                                  colorscale='Rainbow',
+                                  reversescale=False,
                                   color=[],
                                   size=14,
                                   colorbar=dict(
@@ -498,9 +503,17 @@ def visualize_network(G, color_by = None, size_by = None, title = None, layout =
                                     title=color_by,
                                     xanchor='left',
                                     titleside='right'
-                                  ),
-                                  line_width=2
-                               )
+                                  )
+                     )
+
+
+    node_trace = go.Scatter(
+                               x=node_x, y=node_y,
+                               mode= "markers",
+                               hoverinfo="name+text",
+                               marker = marker,
+                               line_width=2
+                               
                             )
     if color_by is not None:
         node_color = []
@@ -532,7 +545,7 @@ def visualize_network(G, color_by = None, size_by = None, title = None, layout =
                     text=node[0], # node name that will be displayed
                     xanchor='left',
                     xshift=10,
-                    font=dict(color=line_color, size=14),
+                    font=dict(color=line_color, size=18), #14
                     showarrow=False, arrowhead=1, ax=-10, ay=-10
                 )
             )
@@ -550,6 +563,8 @@ def visualize_network(G, color_by = None, size_by = None, title = None, layout =
                       layout=go.Layout(
                       title=title,
                       titlefont_size=24,
+                      title_font_color = line_color,
+                      font_color = line_color,
                       showlegend= False,
                       hovermode='closest',
                       margin=dict(b=20,l=5,r=5,t=40),

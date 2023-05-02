@@ -23,8 +23,8 @@ config = {
         'displayModeBar': True,
         'toImageButtonOptions': {
             'format': 'png', # one of png, svg, jpeg, webp
-            'height': 1080,
-            'width': 1920,
+            #'height': 1080,
+            #'width': 1920,
             'scale': 6 # Multiply title/legend/axis/canvas sizes by this factor
         }
     }
@@ -794,7 +794,7 @@ def update_ppi_plot(method, n_clicks, gene_name):
                     nx.set_node_attributes(curr_G, output, "output")
 
                     if "centrality" in method:
-                        fig_ppi = visualize_network(curr_G, color_by = 'output', size_by = 'output', title = prec_title + " with method {} ".format(method),layout = "spring_layout", size_scale=100)
+                        fig_ppi = visualize_network(curr_G, color_by = 'output', size_by = None, title = prec_title + " with method {} ".format(method),layout = "spring_layout", size_scale=100)
                     else:
                         fig_ppi = visualize_network(curr_G, color_by = 'output', size_by = None, title = prec_title + " with method {} ".format(method),layout = "spring_layout")
                     fig_prec_ppi = fig_ppi
