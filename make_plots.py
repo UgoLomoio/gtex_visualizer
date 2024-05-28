@@ -292,7 +292,8 @@ def request_api_gene_expression_with_tissue_and_death(tissue):
     results = {}
     for death in deaths:
         response = requests.get("https://gtexportal.org/api/v2/dataset/sample?datasetId=gtex_v8&tissueSiteDetailId={}&hardyScale={}&format=json&pageSize=2000&sortBy=sampleId&sortDirection=asc".format(tissue, death)).json()
-        results[death.replace("%20", " ")] = response["data"]
+        results[death.replace("%20", " ")] = len(response["data"])
+        #print(results)
     return results
 
 def request_api_gene_expression_with_tissue_and_autolysisScore(tissue):
@@ -302,7 +303,8 @@ def request_api_gene_expression_with_tissue_and_autolysisScore(tissue):
     results = {}
     for score in autolysisScore:
         response = requests.get("https://gtexportal.org/api/v2/dataset/sample?datasetId=gtex_v8&tissueSiteDetailId={}&autolysisScore={}&format=json&pageSize=2000&sortBy=sampleId&sortDirection=asc".format(tissue, score)).json()
-        results[score] = response["data"]
+        #print(2, response)
+        results[score] = len(response["data"])
     return results
 
 
@@ -314,7 +316,7 @@ def request_api_gene_expression_all_tissues_and_death():
         temp = {}
         for death in deaths:
             response = requests.get("https://gtexportal.org/api/v2/dataset/sample?datasetId=gtex_v8&tissueSiteDetailId={}&hardyScale={}&format=json&pageSize=2000&sortBy=sampleId&sortDirection=asc".format(tissue, death)).json()
-            temp[death.replace("%20", " ")] = response["data"]
+            temp[death.replace("%20", " ")] = len(response["data"])
         results[tissue] = temp
         
     return results
@@ -328,7 +330,7 @@ def request_api_gene_expression_all_tissues_and_autolysisScore():
         temp = {}
         for score in autolysisScore:
             response = requests.get("https://gtexportal.org/api/v2/dataset/sample?datasetId=gtex_v8&tissueSiteDetailId={}&autolysisScore={}&format=json&pageSize=2000&sortBy=sampleId&sortDirection=asc".format(tissue, score)).json()
-            temp[score] = response["data"]
+            temp[score] = len(response["data"])
         results[tissue] = temp
     return results
 #pie chart
@@ -564,7 +566,7 @@ def visualize_network(G, color_by = None, size_by = None, title = None, layout =
                       title=title,
                       titlefont_size=24,
                       title_font_color = line_color,
-                      font = {"color ": line_color},
+                      #font = {"color ": line_color},
                       showlegend= False,
                       hovermode='closest',
                       margin=dict(b=20,l=5,r=5,t=40),
