@@ -1,11 +1,11 @@
 plotly
 requests
-dash==2.6.2
+dash
 ipywidgets
 pandas 
 numpy
 gunicorn
 scipy
 networkx
-sklearn
+scikit-learn
 cdlib

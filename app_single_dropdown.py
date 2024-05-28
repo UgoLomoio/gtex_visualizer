@@ -487,7 +487,7 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
                                                 ys[41], ys[42], ys[43], ys[44], ys[45], ys[46], ys[47], ys[48], ys[49], ys[50],
                                                 ys[51], ys[52], ys[53])
                 df = pd.DataFrame([["Anova", fvalue_anova, pvalue_anova], ["Kruskal", fvalue_kruskal, pvalue_kruskal], ["Shapiro", fvalue_shapiro, pvalue_shapiro]], columns = ["", "f_value", "p_value"])
-                dict_data = df.to_dict('rows')
+                dict_data = df.to_dict('records')
 
             elif filters == "Divide by Gender":
                         
@@ -529,7 +529,7 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
                                                 ys[101], ys[102], ys[103], ys[104], ys[105], ys[106], ys[107])
                 
                 df = pd.DataFrame([["Anova", fvalue_anova, pvalue_anova], ["Kruskal", fvalue_kruskal, pvalue_kruskal], ["Shapiro", curr_fvalue_shapiro, curr_pvalue_shapiro]], columns = ["", "f_value", "p_value"])
-                dict_data = df.to_dict('rows')
+                dict_data = df.to_dict('records')
 
             else:
 
@@ -540,7 +540,7 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
                 prec_table_title = table_title
                 
                 df = pd.DataFrame([["Anova", "None", "None"], ["Kruskal", "None", "None"], ["Shapiro", "None", "None"]], columns = ["", "f_value", "p_value"])
-                dict_data = df.to_dict('rows')
+                dict_data = df.to_dict('records')
 
             fig_violin.update_layout(xaxis = {'rangeslider': {'visible':False}})
             curr_violin = fig_violin
@@ -587,7 +587,7 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
                 curr_fvalue_shapiro = fvalue_shapiro
                 curr_pvalue_shapiro = pvalue_shapiro
                 df = pd.DataFrame([["Anova", "None", "None"], ["Kruskal", "None", "None"], ["Shapiro", fvalue_shapiro, pvalue_shapiro]], columns = ["", "f_value", "p_value"])
-                dict_data = df.to_dict('rows')            
+                dict_data = df.to_dict('records')            
             
             elif filters == "Divide by Gender":
 
@@ -603,7 +603,7 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
                 curr_fvalue_shapiro = fvalue_shapiro
                 curr_pvalue_shapiro = pvalue_shapiro
                 df = pd.DataFrame([["Anova", fvalue_anova, pvalue_anova], ["Kruskal", fvalue_kruskal, pvalue_kruskal], ["Shapiro", curr_fvalue_shapiro, curr_pvalue_shapiro]], columns = ["", "f_value", "p_value"])
-                dict_data = df.to_dict('rows')
+                dict_data = df.to_dict('records')
 
             elif filters == "Divide by Age":
 
@@ -619,7 +619,7 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
                 curr_fvalue_shapiro = fvalue_shapiro
                 curr_pvalue_shapiro = pvalue_shapiro
                 df = pd.DataFrame([["Anova", fvalue_anova, pvalue_anova], ["Kruskal", fvalue_kruskal, pvalue_kruskal], ["Shapiro", curr_fvalue_shapiro, curr_pvalue_shapiro]], columns = ["", "f_value", "p_value"])
-                dict_data = df.to_dict('rows')
+                dict_data = df.to_dict('records')
                         
             else: #"Divide by Gender and Age"
 
@@ -635,7 +635,7 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
                 curr_fvalue_shapiro = fvalue_shapiro
                 curr_pvalue_shapiro = pvalue_shapiro
                 df = pd.DataFrame([["Anova", fvalue_anova, pvalue_anova], ["Kruskal", fvalue_kruskal, pvalue_kruskal], ["Shapiro", curr_fvalue_shapiro, curr_pvalue_shapiro]], columns = ["", "f_value", "p_value"])
-                dict_data = df.to_dict('rows')
+                dict_data = df.to_dict('records')
             
             fig_prec_violin = fig_violin
             curr_violin = fig_violin

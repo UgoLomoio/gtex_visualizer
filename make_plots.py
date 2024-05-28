@@ -97,7 +97,7 @@ def request_api_subject_from_age(age):
     elif age >= 60 and age <= 69:
         age = "60-69"
     
-    results = requests.get("http://gtexportal.org/rest/v1/dataset/subject?format=json&datasetId=gtex_v8&ageBracket={}&pageSize=5000".format(age)).json()
+    results = requests.get("https://gtexportal.org/api/v2/dataset/sample?format=json&datasetId=gtex_v8&ageBracket={}&pageSize=5000".format(age)).json()
     dataframe = json_normalize(results["subject"]) 
     return dataframe
 
@@ -108,14 +108,14 @@ def request_api_subject_from_gender(gender):
     else: #elif gender == "F"
         gender = "female"
         
-    results = requests.get("http://gtexportal.org/rest/v1/dataset/subject?format=json&datasetId=gtex_v8&sex={}&pageSize=5000".format(gender)).json()
+    results = requests.get("https://gtexportal.org/api/v2/dataset/sample?format=json&datasetId=gtex_v8&sex={}&pageSize=5000".format(gender)).json()
     dataframe = json_normalize(results["subject"]) 
     return dataframe
 
 def request_api_gene_expression(gene):
     
-    results =  requests.get("http://gtexportal.org/rest/v1/expression/geneExpression?datasetId=gtex_v8&gencodeId={}&format=json".format(gene)).json()
-    dataframe = pd.DataFrame(results["geneExpression"])
+    results =  requests.get("https://gtexportal.org/api/v2/expression/geneExpression?datasetId=gtex_v8&gencodeId={}&format=json".format(gene)).json()
+    dataframe = pd.DataFrame(results["data"])
     return dataframe
 
 def request_api_subject_from_gender_and_age(gender, age):
@@ -130,14 +130,14 @@ def request_api_subject_from_gender_and_age(gender, age):
 
 def request_api_gene_expression_with_gender(gene):
     
-    results =  requests.get("http://gtexportal.org/rest/v1/expression/geneExpression?datasetId=gtex_v8&gencodeId={}&attributeSubset=sex&format=json".format(gene)).json()
-    dataframe = pd.DataFrame(results["geneExpression"])
+    results =  requests.get("https://gtexportal.org/api/v2/expression/geneExpression?datasetId=gtex_v8&gencodeId={}&attributeSubset=sex&format=json".format(gene)).json()
+    dataframe = pd.DataFrame(results["data"])
     return dataframe
 
 def request_api_gene_expression_with_age(gene):
     
-    results =  requests.get("http://gtexportal.org/rest/v1/expression/geneExpression?datasetId=gtex_v8&gencodeId={}&attributeSubset=ageBracket&format=json".format(gene)).json()
-    dataframe = pd.DataFrame(results["geneExpression"])
+    results =  requests.get("https://gtexportal.org/api/v2/expression/geneExpression?datasetId=gtex_v8&gencodeId={}&attributeSubset=ageBracket&format=json".format(gene)).json()
+    dataframe = pd.DataFrame(results["data"])
     return dataframe
 
 """
@@ -156,7 +156,7 @@ def plot_by_gene_and_gender_and_tissue(gencode_id, gene_name, tissue):
     
     fig.update_xaxes(type='category')
     fig.update_layout(violinmode='group', hovermode='x unified', template=template,  yaxis_title="TPM", title= "Violin plot of Gene {} and Tissue {} grouped by gender".format(gene_name, tissue), titlefont_size=24, autosize=False,
-    width=1500, height=800, legend=dict(font=dict(size= 24)), title_font_color = line_color, font_color = line_color)
+    width=1500, height=800, legend=dict(font=dict(size= 24)), title_font_color = line_color)
     fig.update_yaxes(title = dict(font=dict(size= 24)))
     fig.update_xaxes(title = dict(font=dict(size= 24)))
     return fig, pd.DataFrame.from_dict(data, orient='index')
@@ -178,7 +178,7 @@ def plot_by_gene_and_gender(gencode_id, gene_name):
     
     fig.update_xaxes(type='category')
     fig.update_layout(violinmode='group', hovermode='x unified', template=template, yaxis_title="TPM", title= "Violin plot of Gene {} grouped by Gender".format(gene_name), titlefont_size=24, autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(
-                     visible=True)), title_font_color = line_color, font_color = line_color)
+                     visible=True)), title_font_color = line_color)
 
     fig.update_yaxes(autorange = True,fixedrange = False, title = dict(font=dict(size= 24)))
     return fig, pd.DataFrame.from_dict(data, orient='index')
@@ -203,7 +203,7 @@ def plot_by_gene_and_tissue_and_age(gencode_id, gene_name, tissue):
         #    fig.add_trace(go.Violin(x0 = tissue, y=data_tissue_age, points='outliers', legendgroup=age, scalegroup=age, showlegend=False, box_visible=True,  line_color=line_color, fillcolor = colors[j], meanline_visible=True, opacity=0.8))
     
     fig.update_xaxes(type='category', title = dict(font=dict(size= 24)))
-    fig.update_layout(violinmode='group', hovermode='x unified', template=template,  yaxis_title="TPM", title= "Violin plot of Gene {}, Tissue {} grouped by age".format(gene_name, tissue), titlefont_size=24, autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(visible=True)), legend=dict(font=dict(size= 20)), title_font_color = line_color, font_color = line_color)
+    fig.update_layout(violinmode='group', hovermode='x unified', template=template,  yaxis_title="TPM", title= "Violin plot of Gene {}, Tissue {} grouped by age".format(gene_name, tissue), titlefont_size=24, autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(visible=True)), legend=dict(font=dict(size= 20)), title_font_color = line_color)
                                                                                                                                                                                                                                                                          
     fig.update_yaxes(autorange = True,fixedrange = False, title = dict(font=dict(size= 24)))
     return fig, pd.DataFrame.from_dict(data, orient='index')
@@ -225,7 +225,7 @@ def plot_by_gene(gencode_id, gene_name):
     
     fig.update_xaxes(type='category')
     fig.update_layout(template=template, hovermode='x unified', yaxis_title="TPM", title= "Violin plot of Gene {}".format(gene_name), titlefont_size=24, autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(
-                     visible=True)), title_font_color = line_color, font_color = line_color)
+                     visible=True)), title_font_color = line_color)
     fig.update_yaxes(title = dict(font=dict(size= 24)))
     return fig, pd.DataFrame.from_dict(data, orient='index')
 
@@ -235,8 +235,8 @@ def plot_by_gene_and_tissue(gene, gene_name, tissue):
     fig = go.FigureWidget()
     data = [float(elem) for elem in list(df['data'][df['tissueSiteDetailId'] == tissue].values[0])]
     fig.add_trace(go.Violin(x0=tissue, y=data, name=tissue, box_visible=True, line_color=line_color, meanline_visible=True, fillcolor='lightseagreen', points="outliers", opacity=0.8))
-    fig.update_layout(template=template, hovermode='x unified', yaxis_title="TPM", title= "Violin plot of Gene {} and Tissue {}".format(gene_name, tissue), titlefont_size=24, title_font_color = line_color, font_color = line_color)
-    fig.update_yaxes(title = dict(font=dict(size= 20)), title_font_color = line_color, font_color = line_color)
+    fig.update_layout(template=template, hovermode='x unified', yaxis_title="TPM", title= "Violin plot of Gene {} and Tissue {}".format(gene_name, tissue), titlefont_size=24, title_font_color = line_color)
+    fig.update_yaxes(title = dict(font=dict(size= 20, color = line_color)))
     return fig, pd.DataFrame.from_dict(data)
 
 
@@ -253,7 +253,7 @@ def plot_by_gene_and_gender_and_tissue_and_age(gencode_id, gene_name, tissue):
     
     fig.update_xaxes(type='category')
     fig.update_layout(violinmode='group', hovermode='x unified', template=template,  yaxis_title="TPM", title= "Violin plot of Gene {} and Tissue {} grouped by gender".format(gene_name, tissue), autosize=False,
-    width=1500, height=800, legend=dict(font=dict(size= 24)), titlefont_size=24, title_font_color = line_color, font_color = line_color)
+    width=1500, height=800, legend=dict(font=dict(size= 24)), titlefont_size=24, title_font_color = line_color)
     fig.update_yaxes(title = dict(font=dict(size= 24)))
     fig.update_xaxes(title = dict(font=dict(size= 24)))
     return fig, pd.DataFrame.from_dict(data, orient='index')
@@ -278,7 +278,7 @@ def plot_by_gene_tissue_age_and_gender(gencode_id, gene_name, tissue):
             idx += 1
     fig.update_xaxes(type='category')
     fig.update_layout(violinmode='group', hovermode='x unified', yaxis_title = "TPM", template=template, title= "Violin plot of Gene {}, Tissue {} grouped by Gender and Age".format(gene_name, tissue),  titlefont_size=24, autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(
-                     visible=True)), legend=dict(font=dict(size= 24)), title_font_color = line_color, font_color = line_color)
+                     visible=True)), legend=dict(font=dict(size= 24)), title_font_color = line_color)
     # fig.update_yaxes(autorange = True,fixedrange = False)
     fig.update_yaxes(title = dict(font=dict(size= 24)))
     fig.update_xaxes(title = dict(font=dict(size= 24)))
@@ -291,8 +291,8 @@ def request_api_gene_expression_with_tissue_and_death(tissue):
     deaths = ["Ventilator%20case", "Fast%20death%20-%20violent", "Fast%20death%20-%20natural%20causes", "Intermediate%20death", "Slow%20death"]
     results = {}
     for death in deaths:
-        response = requests.get("http://gtexportal.org/rest/v1/dataset/sample?datasetId=gtex_v8&tissueSiteDetailId={}&hardyScale={}&format=json&pageSize=2000&sortBy=sampleId&sortDirection=asc".format(tissue, death)).json()
-        results[death.replace("%20", " ")] = response["recordsFiltered"]
+        response = requests.get("https://gtexportal.org/api/v2/dataset/sample?datasetId=gtex_v8&tissueSiteDetailId={}&hardyScale={}&format=json&pageSize=2000&sortBy=sampleId&sortDirection=asc".format(tissue, death)).json()
+        results[death.replace("%20", " ")] = response["data"]
     return results
 
 def request_api_gene_expression_with_tissue_and_autolysisScore(tissue):
@@ -301,8 +301,8 @@ def request_api_gene_expression_with_tissue_and_autolysisScore(tissue):
     
     results = {}
     for score in autolysisScore:
-        response = requests.get("http://gtexportal.org/rest/v1/dataset/sample?datasetId=gtex_v8&tissueSiteDetailId={}&autolysisScore={}&format=json&pageSize=2000&sortBy=sampleId&sortDirection=asc".format(tissue, score)).json()
-        results[score] = response["recordsFiltered"]
+        response = requests.get("https://gtexportal.org/api/v2/dataset/sample?datasetId=gtex_v8&tissueSiteDetailId={}&autolysisScore={}&format=json&pageSize=2000&sortBy=sampleId&sortDirection=asc".format(tissue, score)).json()
+        results[score] = response["data"]
     return results
 
 
@@ -313,8 +313,8 @@ def request_api_gene_expression_all_tissues_and_death():
     for tissue in all_tissues:
         temp = {}
         for death in deaths:
-            response = requests.get("http://gtexportal.org/rest/v1/dataset/sample?datasetId=gtex_v8&tissueSiteDetailId={}&hardyScale={}&format=json&pageSize=2000&sortBy=sampleId&sortDirection=asc".format(tissue, death)).json()
-            temp[death.replace("%20", " ")] = response["recordsFiltered"]
+            response = requests.get("https://gtexportal.org/api/v2/dataset/sample?datasetId=gtex_v8&tissueSiteDetailId={}&hardyScale={}&format=json&pageSize=2000&sortBy=sampleId&sortDirection=asc".format(tissue, death)).json()
+            temp[death.replace("%20", " ")] = response["data"]
         results[tissue] = temp
         
     return results
@@ -327,8 +327,8 @@ def request_api_gene_expression_all_tissues_and_autolysisScore():
     for tissue in all_tissues:
         temp = {}
         for score in autolysisScore:
-            response = requests.get("http://gtexportal.org/rest/v1/dataset/sample?datasetId=gtex_v8&tissueSiteDetailId={}&autolysisScore={}&format=json&pageSize=2000&sortBy=sampleId&sortDirection=asc".format(tissue, score)).json()
-            temp[score] = response["recordsFiltered"]
+            response = requests.get("https://gtexportal.org/api/v2/dataset/sample?datasetId=gtex_v8&tissueSiteDetailId={}&autolysisScore={}&format=json&pageSize=2000&sortBy=sampleId&sortDirection=asc".format(tissue, score)).json()
+            temp[score] = response["data"]
         results[tissue] = temp
     return results
 #pie chart
@@ -363,7 +363,7 @@ def plot_gene_tissue_data(gene, gene_name, tissue):
                   2, 2)
     fig.update_traces(hoverinfo='label+percent', textinfo = 'label')
     fig.update_layout(template=template, hovermode='x unified', title= "Pie charts for Gene {} and Tissue {}".format(gene_name, tissue), autosize=False, width=600, height=800, xaxis =  {                                     
-                      'showgrid': False}, yaxis = {'showgrid': True}, showlegend=False, title_font_color = line_color, font_color = line_color)    
+                      'showgrid': False}, yaxis = {'showgrid': True}, showlegend=False, title_font_color = line_color)    
     return fig
 
 def plot_gene_data(gene, gene_name):
@@ -400,7 +400,7 @@ def plot_gene_data(gene, gene_name):
                   3, 1)
     fig.update_traces(hoverinfo='label+percent', textinfo = 'label')
     fig.update_layout(template=template, hovermode='x unified', title= "Pie charts for Gene {} and all tissues".format(gene_name), autosize=False, width=600, height=800, xaxis =  {                                     
-                      'showgrid': False}, yaxis = {'showgrid': True}, showlegend=False, title_font_color = line_color, font_color = line_color)    
+                      'showgrid': False}, yaxis = {'showgrid': True}, showlegend=False, title_font_color = line_color)    
     return fig
 
 #PPI plot
@@ -564,7 +564,7 @@ def visualize_network(G, color_by = None, size_by = None, title = None, layout =
                       title=title,
                       titlefont_size=24,
                       title_font_color = line_color,
-                      font_color = line_color,
+                      font = {"color ": line_color},
                       showlegend= False,
                       hovermode='closest',
                       margin=dict(b=20,l=5,r=5,t=40),
