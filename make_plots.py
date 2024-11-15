@@ -23,6 +23,9 @@ template = "plotly_white"
 line_color = "black"
 #line_color = "white"
 
+all_ages = ["20-29", "30-39", "40-49", "50-59", "60-69", "70-79"]
+all_genders = ["male", "female"]
+
 colors = ['aliceblue', 'antiquewhite', 'aqua', 'aquamarine', 'azure',
                 'beige', 'bisque', 'blanchedalmond', 'blue',
                 'blueviolet', 'brown', 'burlywood', 'cadetblue',
@@ -130,13 +133,13 @@ def request_api_subject_from_gender_and_age(gender, age):
 
 def request_api_gene_expression_with_gender(gene):
     
-    results =  requests.get("https://gtexportal.org/api/v2/expression/geneExpression?datasetId=gtex_v8&gencodeId={}&attributeSubset=sex&format=json".format(gene)).json()
+    results =  requests.get("https://gtexportal.org/api/v2/expression/geneExpression?datasetId=gtex_v10&gencodeId={}&attributeSubset=sex&format=json".format(gene)).json()
     dataframe = pd.DataFrame(results["data"])
     return dataframe
 
 def request_api_gene_expression_with_age(gene):
     
-    results =  requests.get("https://gtexportal.org/api/v2/expression/geneExpression?datasetId=gtex_v8&gencodeId={}&attributeSubset=ageBracket&format=json".format(gene)).json()
+    results =  requests.get("https://gtexportal.org/api/v2/expression/geneExpression?datasetId=gtex_v10&gencodeId={}&attributeSubset=ageBracket&format=json".format(gene)).json()
     dataframe = pd.DataFrame(results["data"])
     return dataframe
 
@@ -149,7 +152,7 @@ def plot_by_gene_and_gender_and_tissue(gencode_id, gene_name, tissue):
     df = request_api_gene_expression_with_gender(gencode_id)
     fig = go.FigureWidget()
     genders = ["male", "female"]
-    data = {gender: [float(elem) for elem in list(df['data'][df['tissueSiteDetailId'] == tissue][df['subsetGroup'] == gender].values[0])] for gender in genders}
+    data = {gender: [float(elem) for elem in list(df["data"][df['tissueSiteDetailId'] == tissue][df['subsetGroup'] == gender].values[0])] for gender in genders}
     colors = ["cyan", "pink"]
     for i, (gender, data_tissue_gender) in enumerate(data.items()):
          fig.add_trace(go.Violin(x0 = tissue, y=data_tissue_gender, points='outliers', name = gender, box_visible=True,  line_color=line_color, fillcolor = colors[i], meanline_visible=True, opacity=0.8))
@@ -164,10 +167,12 @@ def plot_by_gene_and_gender_and_tissue(gencode_id, gene_name, tissue):
 def plot_by_gene_and_gender(gencode_id, gene_name):
     
     df = request_api_gene_expression_with_gender(gencode_id)
+    print(df)
     fig = go.FigureWidget()
     genders = ["male", "female"]
     tissues = np.unique(list(df["tissueSiteDetailId"]))
-    data = {tissue: {gender: [float(elem) for elem in list(df['data'][df['tissueSiteDetailId'] == tissue][df['subsetGroup'] == gender].values[0])] for gender in genders} for tissue in tissues}
+    data = {tissue: {gender: [float(elem) for elem in list(df["data"][df['tissueSiteDetailId'] == tissue][df['subsetGroup'] == gender].values[0])] for gender in genders} for tissue in tissues}
+    print(data)
     colors = ["cyan", "pink"]
     for i, (tissue, data_tissue) in enumerate(data.items()):
         for j, (gender, data_tissue_gender) in enumerate(data_tissue.items()):
@@ -187,13 +192,14 @@ def plot_by_gene_and_gender(gencode_id, gene_name):
 def plot_by_gene_and_tissue_and_age(gencode_id, gene_name, tissue):
     
     df = request_api_gene_expression_with_age(gencode_id)
+    print(df)
     fig = go.FigureWidget()
-    tissues = np.unique(list(df["tissueSiteDetailId"]))
+    tissues = all_tissues
     ages = np.unique(list(df["subsetGroup"]))
     colors = ["red", "green", "blue", "cyan", "yellow", "orange"]
     #data = {tissue: {age: [float(elem) for elem in list(df['data'][df['tissueSiteDetailId'] == tissue][df['subsetGroup'] == age].values[0])] for age in ages} for tissue in tissues}
-    data = {age: [float(elem) for elem in list(df['data'][df['tissueSiteDetailId'] == tissue][df['subsetGroup'] == age].values[0])] for age in ages}
-    
+    data = {age: [float(elem) for elem in list(df["data"][df['tissueSiteDetailId'] == tissue][df['subsetGroup'] == age].values[0])] for age in ages}
+    print(data)
     #for i, (tissue, data_tissue) in enumerate(data.items()):
         #for j, (age, data_tissue_age) in enumerate(data_tissue.items()):
     for j, (age, data_tissue_age) in enumerate(data.items()):
@@ -212,8 +218,8 @@ def plot_by_gene(gencode_id, gene_name):
     
     selected_colors = []
     df = request_api_gene_expression(gencode_id)
-    tissues = np.unique(list(df["tissueSiteDetailId"]))
-    data = {tissue:[float(elem) for elem in list(df['data'][df['tissueSiteDetailId'] == tissue].values[0])] for tissue in tissues}
+    tissues = all_tissues
+    data = {tissue:[float(elem) for elem in list(df["data"][df['tissueSiteDetailId'] == tissue].values[0])] for tissue in tissues}
     fig = go.FigureWidget()
     for i, (tissue, tissue_data) in enumerate(data.items()):
         while(True):
@@ -233,7 +239,7 @@ def plot_by_gene_and_tissue(gene, gene_name, tissue):
     
     df = request_api_gene_expression(gene)
     fig = go.FigureWidget()
-    data = [float(elem) for elem in list(df['data'][df['tissueSiteDetailId'] == tissue].values[0])]
+    data = [float(elem) for elem in list(df["data"][df['tissueSiteDetailId'] == tissue].values[0])]
     fig.add_trace(go.Violin(x0=tissue, y=data, name=tissue, box_visible=True, line_color=line_color, meanline_visible=True, fillcolor='lightseagreen', points="outliers", opacity=0.8))
     fig.update_layout(template=template, hovermode='x unified', yaxis_title="TPM", title= "Violin plot of Gene {} and Tissue {}".format(gene_name, tissue), titlefont_size=24, title_font_color = line_color)
     fig.update_yaxes(title = dict(font=dict(size= 20, color = line_color)))
@@ -246,7 +252,7 @@ def plot_by_gene_and_gender_and_tissue_and_age(gencode_id, gene_name, tissue):
     fig = go.FigureWidget()
     genders = ["male", "female"]
     ages = ["20-29", "30-39", "40-49", "50-59", "60-69", "70-79"]
-    data = {gender: {age: [float(elem) for elem in list(df['data'][df['tissueSiteDetailId'] == tissue][df['subsetGroup'] == gender][df['ageBracket'] == age].values[0])] for age in ages} for gender in genders}
+    data = {gender: {age: [float(elem) for elem in list(df["data"][df['tissueSiteDetailId'] == tissue][df['subsetGroup'] == gender][df['ageBracket'] == age].values[0])] for age in ages} for gender in genders}
     colors = ["cyan", "pink"]
     for i, (gender, data_tissue_gender) in enumerate(data.items()):
          fig.add_trace(go.Violin(x0 = tissue, y=data_tissue_gender, points='outliers', name = gender, box_visible=True,  line_color=line_color, fillcolor = colors[i], meanline_visible=True, opacity=0.8))
@@ -264,8 +270,8 @@ def plot_by_gene_tissue_age_and_gender(gencode_id, gene_name, tissue):
     df_age = request_api_gene_expression_with_age(gencode_id)
     genders = ["male", "female"]
     ages = ["20-29", "30-39", "40-49", "50-59", "60-69", "70-79"]
-    data_gender = {gender: [float(elem) for elem in list(df_gender['data'][df_gender['tissueSiteDetailId'] == tissue][df_gender['subsetGroup'] == gender].values[0])] for gender in genders}
-    data_age = {age: [float(elem) for elem in list(df_age['data'][df_age['tissueSiteDetailId'] == tissue][df_age['subsetGroup'] == age].values[0])] for age in ages}
+    data_gender = {gender: [float(elem) for elem in list(df_gender["data"][df_gender['tissueSiteDetailId'] == tissue][df_gender['subsetGroup'] == gender].values[0])] for gender in genders}
+    data_age = {age: [float(elem) for elem in list(df_age["data"][df_age['tissueSiteDetailId'] == tissue][df_age['subsetGroup'] == age].values[0])] for age in ages}
     data = {age: {gender: [float(elem1) for elem1 in data_gender[gender] for elem2 in data_age[age] if elem1 == elem2] for gender in genders} for age in ages}
     
     fig = go.FigureWidget()
@@ -349,8 +355,8 @@ def plot_gene_tissue_data(gene, gene_name, tissue):
     #deaths = ["Ventilator case", "Fast death - violent", "Fast death - natural causes", "Intermediate death", "Slow death"]
     deaths_colors = ["red", "green", "blue", "cyan", "yellow", "orange"]
     
-    data_genders = {gender: [float(elem) for elem in list(df_genders['data'][df_genders['tissueSiteDetailId'] == tissue][df_genders['subsetGroup'] == gender].values[0])] for gender in genders} #.values[0]
-    data_ages = {age: [float(elem) for elem in list(df_ages['data'][df_ages['tissueSiteDetailId'] == tissue][df_ages['subsetGroup'] == age].values[0])] for age in ages} #.values[0]
+    data_genders = {gender: [float(elem) for elem in list(df_genders["data"][df_genders['tissueSiteDetailId'] == tissue][df_genders['subsetGroup'] == gender].values[0])] for gender in genders} #.values[0]
+    data_ages = {age: [float(elem) for elem in list(df_ages["data"][df_ages['tissueSiteDetailId'] == tissue][df_ages['subsetGroup'] == age].values[0])] for age in ages} #.values[0]
     data_score = request_api_gene_expression_with_tissue_and_autolysisScore(tissue)
     data_deaths = request_api_gene_expression_with_tissue_and_death(tissue)
     
@@ -382,8 +388,8 @@ def plot_gene_data(gene, gene_name):
     #deaths = ["Ventilator case", "Fast death - violent", "Fast death - natural causes", "Intermediate death", "Slow death"]
     deaths_colors = ["red", "green", "blue", "cyan", "yellow", "orange"]
     
-    data_genders = {gender: [float(elem) for elem in list(df_genders['data'][df_genders['subsetGroup'] == gender].values[0])] for gender in genders} #.values[0]
-    data_ages = {age: [float(elem) for elem in list(df_ages['data'][df_ages['subsetGroup'] == age].values[0])] for age in ages} #.values[0]
+    data_genders = {gender: [float(elem) for elem in list(df_genders["data"][df_genders['subsetGroup'] == gender].values[0])] for gender in genders} #.values[0]
+    data_ages = {age: [float(elem) for elem in list(df_ages["data"][df_ages['subsetGroup'] == age].values[0])] for age in ages} #.values[0]
     data_score = request_api_gene_expression_all_tissues_and_autolysisScore()
     data_deaths = request_api_gene_expression_all_tissues_and_death()
     data_tissues = {tissue: len(list(data_tissue)) for tissue, data_tissue in data_score.items()}
@@ -658,11 +664,11 @@ def multi_tissues_violin_plot(gene, gene_name, tissues):
                 if color not in selected_colors:
                     selected_colors.append(color)
                     break
-            data = [float(elem) for elem in list(df['data'][df['tissueSiteDetailId'] == tissue].values[0])]
+            data = [float(elem) for elem in list(df[df['tissueSiteDetailId'] == tissue].values[0])]
             fig.add_trace(go.Violin(x0=tissue, y=data, name=tissue, box_visible=True, line_color=line_color, meanline_visible=True, fillcolor=color, points="outliers", opacity=0.8))
     fig.update_layout(template=template, hovermode='x unified', yaxis_title="TPM", title= "Violin plot of Gene {} and First {} Tissues selected".format(gene_name, limit), autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(
                      visible=True)))
-    return fig, pd.DataFrame.from_dict({tissue: list(df['data'][df['tissueSiteDetailId'] == tissue].values[0]) for tissue in unique_tissues[:limit]}, orient='index')
+    return fig, pd.DataFrame.from_dict({tissue: list(df[df['tissueSiteDetailId'] == tissue].values[0]) for tissue in unique_tissues[:limit]}, orient='index')
 
 #multi dropdown genes plots (up to 2 genes and all tissues)
 
@@ -697,8 +703,8 @@ def multi_genes_violin_plot(genes, genes_name, tissues):
                     if color not in selected_colors:
                         selected_colors.append(color)
                     break
-                data = [float(elem) for elem in list(dfs[gene]['data'][dfs[gene]['tissueSiteDetailId'] == tissue].values[0])]
+                data = [float(elem) for elem in list(dfs[gene][dfs[gene]['tissueSiteDetailId'] == tissue].values[0])]
                 fig.add_trace(go.Violin(x0=tissue, y=data, name="{}_{}".format(gene_name, tissue), box_visible=True, line_color=line_color, meanline_visible=True, fillcolor=color, points="outliers", opacity=0.8))
     fig.update_layout(violinmode='group', hovermode='x unified', template=template, yaxis_title="TPM", title= "Violin plot of First {} Genes and First {} Tissues selected".format(limit_g, limit_t), autosize=False, width=1500, height=800, xaxis=dict(rangeslider=dict(
                      visible=True)))
-    return fig, pd.DataFrame.from_dict({gene: {tissue: list(dfs[gene]['data'][dfs[gene]['tissueSiteDetailId'] == tissue].values[0]) for tissue in unique_tissues[:limit_t]} for gene in unique_genes[:limit_g]}, orient='index')
+    return fig, pd.DataFrame.from_dict({gene: {tissue: list(dfs[gene][dfs[gene]['tissueSiteDetailId'] == tissue].values[0]) for tissue in unique_tissues[:limit_t]} for gene in unique_genes[:limit_g]}, orient='index')

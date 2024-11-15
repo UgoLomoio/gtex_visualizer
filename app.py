@@ -120,7 +120,7 @@ app_dash_layout_args = [
                     children = [
                         html.Label("Select a gene: ", style={'backgroundColor': bg, 'color': txt_color}),
                         dcc.Dropdown(list(all_genes_dict.keys()), list(all_genes_dict.keys())[0], id='genes_dd', multi = True, style={'color': 'black', 'border': '3px solid #ff7300'}),#multi=True
-                        html.A("Gene info", id = "ensembl-gene-link", href='', target="_blank",style={"position": "absolute", 'backgroundColor': bg, "left": "150px", "top": "100px", 'color': "blue", 'width': "400px"}),
+                        html.A("Gene info", id = "ensembl-gene-link", href='', target="_blank",style={"position": "absolute", 'backgroundColor': bg, "left": "150px", "top": "10%", 'color': "blue", 'width': "20%"}),
 
                     ],
                     style={'width': '100%', 'display': 'inline-block'}
@@ -149,7 +149,7 @@ app_dash_layout_args = [
                                 "Download Data",
                                 id = "download-data-button",  
                                 n_clicks=0,
-                                style={"position": "absolute", "left": "700px", "top": "50px", 'cursor': 'pointer', 'border': '0px', 
+                                style={"position": "absolute", "left": "40%", "top": "5%", 'cursor': 'pointer', 'border': '0px', 
                                        'border-radius': '3px', 'background-color': 'rgb(31, 24, 252)', 'color': 'white', 'font-size': '12px',
                                        'font-family': 'Open Sans', 'width': "200px", 'height': '40px', 'border': '3px solid #ff7300'}
                     ),
@@ -157,9 +157,10 @@ app_dash_layout_args = [
                 ]
         ),
         html.Div(
+
              children = [   
-                dcc.Loading(id = "loading-violin", style={"position": "absolute", "left": "0px", "top": "350px", 'backgroundColor': bg, 
-                                                          'color': txt_color, 'width': "800px", 'height': '1000px'}, type="default",  
+                dcc.Loading(id = "loading-violin", style={"position": "absolute", "left": "0px", "top": "25%", 'backgroundColor': bg, 
+                                                          'color': txt_color, 'width': "100%", 'height': '50%'}, type="default",  
                     
                             children=
                             [
@@ -168,51 +169,56 @@ app_dash_layout_args = [
                                                 id="fig-violin",
                                                 figure=empty_figure(),
                                                 animate=False,
-                                                style={"position": "absolute", "left": "0px", "top": "400px", 
-                                                       'backgroundColor': bg, 'color': txt_color, 'width': "1500px", 'height': '800px'},
+                                                style={"position": "absolute", "left": "0px", "top": "30%", 
+                                                       'backgroundColor': bg, 'color': txt_color, 'width': "100%", 'height': '100%', 'display': 'inline-block'},
                                                 config = config
                                         )
                                    ),
                                    html.Div(
                                             dcc.RangeSlider(id='rangeslider-1', min=0,max=len(all_tissues), step=1, value=[0, len(all_tissues)], tooltip={"placement": "bottom", "always_visible": True}),
                                             id = "slider-conteiner-1",
-                                            style={"position": "absolute", "left": "0px", "top": "350px", 'backgroundColor': bg, 'color': txt_color, 'width': "1500px", 'height': '50px'}
+                                            style={"position": "absolute", "left": "0px", "top": "25%", 'backgroundColor': bg, 'color': txt_color, 'width': "100%", 'height': '50px'}
                                    )
                             ]
-                ),
-                dcc.Loading(
-                            id = "loading-pie",   
-                            children=[html.Div(
-                                dcc.Graph( 
-                                            id="fig-pie",
-                                            figure=empty_figure(),
-                                            animate=False,
-                                            style={"position": "absolute", "left": "0px", "top": "1300px", 'backgroundColor': bg, 'color': txt_color, 'width': "800px", 'height': '800px'}, #
-                                            config = config
-                                )
-
-                            )],
-                            style={"position": "absolute", 'backgroundColor': bg, "left": "0px", "top": "1300px",  'color': txt_color, 'width': "600px", 'height': '1000px'}, # "left": "1000px", "top": "350px", 
-                            type="default"
                 )
-             ]
-        ),
-        dcc.Loading(
-                            id = "loading-ppi",   
-                            children=[html.Div(
-                                dcc.Graph( 
-                                            id="fig-ppi",
-                                            figure=empty_figure(),
-                                            animate=False,
-                                            style={"position": "absolute", "left": "600px", "top": "1300px", 'backgroundColor': bg, 'color': txt_color, 'width': "900px", 'height': '800px'}, #
-                                            config = config
-                                )
+        ]),
+        html.Div([
+            
+            dcc.Loading(
+                                id = "loading-pie",   
+                                children=[html.Div(
+                                    dcc.Graph( 
+                                                id="fig-pie",
+                                                figure=empty_figure(),
+                                                animate=False,
+                                                style={"position": "absolute", "left": "0px", "top": "150%", 'backgroundColor': bg, 'color': txt_color, 'width': "45%", 'height': '45%'}, #
+                                                config = config
+                                    )
 
-                            )],
-                            style={"position": "absolute", 'backgroundColor': bg, "left": "600px", "top": "1300px",  'color': txt_color, 'width': "900px", 'height': '800px'}, # "left": "1000px", "top": "350px", 
-                            type="default"
+                                )],
+                                style={"position": "absolute", 'backgroundColor': bg, "left": "0px", "top": "150%",  'color': txt_color, 'width': "45%", 'height': '45%', 'display': 'inline-block'}, # "left": "1000px", "top": "350px", 
+                                type="default"
+            ),
+        
+            dcc.Loading(
+                                id = "loading-ppi",   
+                                children=[html.Div(
+                                    dcc.Graph( 
+                                                id="fig-ppi",
+                                                figure=empty_figure(),
+                                                animate=False,
+                                                style={"position": "absolute", "left": "50%", "top": "140%", 'backgroundColor': bg, 'color': txt_color, 'width': "45%", 'height': '45%'}, #
+                                                config = config
+                                    )
+
+                                )],
+                                style={"position": "absolute", 'backgroundColor': bg, "left": "50%", "top": "140%",  'color': txt_color, 'width': "45%", 'height': '45%'}, # "left": "1000px", "top": "350px", 
+                                type="default"
+            )
+            ],
+        style={"position": "absolute", 'backgroundColor': bg, "left": "0%", "top": "140%",  'color': txt_color, 'width': "100%", 'height': '45%'},
         ),
-        html.A("See this PPI with STRING", id = "ppi-string-link", href='', target="_blank",style={"position": "absolute", 'backgroundColor': 'rgb(17, 17, 17)', "left": "900px", "top": "1350px",  'color': 'white', 'width': "400px"}),
+        html.A("See this PPI with STRING", id = "ppi-string-link", href='', target="_blank",style={"position": "absolute", 'backgroundColor': 'rgb(17, 17, 17)', "left": "50%", "top": "130%",  'color': 'white', 'width': "45%"}),
 
         #add save data and save plot for ppi 
         html.Div(
@@ -221,13 +227,13 @@ app_dash_layout_args = [
                         html.Label("Select a method for graph analysis and visualization: ", style={'backgroundColor': bg, 'color': txt_color}),
                         dcc.Dropdown(all_methods, all_methods[0], id='methods_dd', style={'color': 'black', 'border': '3px solid #ff7300'})
                     ],
-                    style={'width': '500px', 'display': 'inline-block', "position": "absolute", "left": "800px", "top": "1200px" }
+                    style={'width': '45%', 'display': 'inline-block', "position": "absolute", "left": "50%", "top": "120%" }
         ),
         html.Button(
                     "Update Plots",
                     id = "plot-button",  
                     n_clicks=0,
-                    style={"position": "absolute", "left": "0px", "top": "300px", 'cursor': 'pointer', 'border': '0px', 
+                    style={"position": "absolute", "left": "0px", "top": "35%", 'cursor': 'pointer', 'border': '0px', 
                            'border-radius': '3px', 'background-color': 'rgb(31, 24, 252)', 'color': 'white', 'font-size': '12px',
                            'font-family': 'Open Sans', 'width': "200px", 'height': '40px', 'border': '3px solid #ff7300'}
         ),
@@ -237,7 +243,7 @@ app_dash_layout_args = [
                                 "Download Plots",#and Data
                                 id = "download-plots-button",  
                                 n_clicks=0,
-                                style={"position": "absolute", "left": "1000px", "top": "50px", 'cursor': 'pointer', 'border': '0px', 
+                                style={"position": "absolute", "left": "55%", "top": "5%", 'cursor': 'pointer', 'border': '0px', 
                                        'border-radius': '3px', 'background-color': 'rgb(31, 24, 252)', 'color': 'white', 'font-size': '12px',
                                        'font-family': 'Open Sans', 'width': "200px", 'height': '40px', 'border': '3px solid #ff7300'}
                     ),
@@ -253,8 +259,8 @@ app_dash_layout_args = [
                                      columns = [{"name": name, "id": name} for name in prec_table.columns], id='anova_table', style_header={'backgroundColor': 'rgb(30, 30, 30)','color': 'white'},
                                      style_data={'backgroundColor': 'rgb(50, 50, 50)', 'color': 'white'})
             ],  
-            style={"position": "absolute", "left": "0px", "top": "2100px", 
-                                            'backgroundColor': bg, 'color': txt_color, 'width': '1300px', 'height': '200px', 'display': 'inline-block'}
+            style={"position": "absolute", "left": "0px", "top": "120%", 
+                                            'backgroundColor': bg, 'color': txt_color, 'width': '45%', 'height': '5%', 'display': 'inline-block'}
         ),
 
         html.Div([
@@ -268,14 +274,14 @@ app_dash_layout_args = [
             ]),
             ],
             className="footer",
-            style={"position": "absolute", "left": "0px", "top": "2300px", 'width': '100%'}
+            style={"position": "absolute", "left": "0px", "top": "180%", 'width': '100%'}
         )
     ]    
 
 app.layout = html.Div(
         app_dash_layout_args,
-        style = {'border': '0px', 'backgroundColor': 'white', 'background-size': '100%', 'position': 'fixed',
-                'width': '100%', 'height': '100%', 'margin': '0px', 'overflow': 'scroll'}
+        style = {'border': '0px', 'backgroundColor': 'white', 'background-size': '100%', 'position': 'absolute',
+                'width': '100%', 'height': '100%', 'margin': '0px'}
 )
   
 @app.callback(
@@ -942,6 +948,6 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
 
 if __name__ == "__main__":
 
-    app.run_server(debug=True, dev_tools_hot_reload=False, threaded = True)
+    app.run_server(debug=False, dev_tools_hot_reload=False, threaded = True)
 
 #Fix index and columns of returned dataframes 
