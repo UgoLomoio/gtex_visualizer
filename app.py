@@ -274,7 +274,7 @@ app_dash_layout_args = [
             ]),
             ],
             className="footer",
-            style={"position": "absolute", "left": "0px", "top": "180%", 'width': '100%'}
+            style={"position": "absolute", "left": "0px", "top": "220%", 'width': '100%'}
         )
     ]    
 
