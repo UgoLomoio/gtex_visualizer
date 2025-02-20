@@ -68,7 +68,7 @@ txt_color = "black"
 
 def empty_figure(title = "Fill Dropdown menus and press the Update Plot Button", color = "black"):
 
-    fig = go.FigureWidget()
+    fig = go.Figure()
     fig.update_layout(template=template, title=title, title_font_color=color)
     return fig
 
