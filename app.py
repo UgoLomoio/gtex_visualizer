@@ -948,6 +948,6 @@ def update_plot(n_clicks, x_range, filters, gene_name, tissue):
 
 if __name__ == "__main__":
 
-    app.run_server(debug=False, dev_tools_hot_reload=False, threaded = True)
+    app.run(debug=False, dev_tools_hot_reload=False, threaded = True)
 
 #Fix index and columns of returned dataframes 
